@@ -3,9 +3,9 @@
 const CACHE_NAME = 'firstthingsfirst-v1';
 const urlsToCache = [
   '/',
-  '/index.html',
-  '/app.js',
-  '/manifest.json'
+  '/FirstThingsFirst/index.html',
+  '/FirstThingsFirst/app.js',
+  '/FirstThingsFirst/manifest.json'
 ];
 
 // Install service worker and cache resources
