@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FirstThingsFirst - Priority Matrix</title>
+    <!-- Uncomment the next line if serving over HTTP/HTTPS for PWA support -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1a1a2e">
+    <link rel="stylesheet" href="app.css">
+</head>
+<body>
+    <div class="header">
+        <div class="header-brand">
+            <svg class="logo" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- Q1 - Top Left - Green -->
+                <rect x="5" y="5" width="40" height="40" rx="6" fill="#AEE7B1" opacity="0.9"/>
+                <text x="25" y="33" font-family="Arial" font-weight="bold" font-size="20" text-anchor="middle" fill="#0a0a15">1</text>
+
+                <!-- Q2 - Top Right - Blue -->
+                <rect x="55" y="5" width="40" height="40" rx="6" fill="#ABBEE1" opacity="0.9"/>
+                <text x="75" y="33" font-family="Arial" font-weight="bold" font-size="20" text-anchor="middle" fill="#0a0a15">2</text>
+
+                <!-- Q3 - Bottom Left - Purple -->
+                <rect x="5" y="55" width="40" height="40" rx="6" fill="#BCB5F0" opacity="0.9"/>
+                <text x="25" y="83" font-family="Arial" font-weight="bold" font-size="20" text-anchor="middle" fill="#0a0a15">3</text>
+
+                <!-- Q4 - Bottom Right - Yellow -->
+                <rect x="55" y="55" width="40" height="40" rx="6" fill="#F5D26C" opacity="0.9"/>
+                <text x="75" y="83" font-family="Arial" font-weight="bold" font-size="20" text-anchor="middle" fill="#0a0a15">4</text>
+
+                <!-- Center cross lines -->
+                <line x1="50" y1="10" x2="50" y2="90" stroke="#e8e8f0" stroke-width="2" opacity="0.3"/>
+                <line x1="10" y1="50" x2="90" y2="50" stroke="#e8e8f0" stroke-width="2" opacity="0.3"/>
+            </svg>
+            <h1>FirstThingsFirst</h1>
+        </div>
+        <div class="toolbar">
+            <button class="btn btn-primary" id="addBtn">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                </svg>
+                Add
+            </button>
+            <button class="btn" id="viewBtn">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
+                </svg>
+                View: Quadrant
+            </button>
+            <button class="btn" id="exportBtn">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                </svg>
+                Export
+            </button>
+            <button class="btn" id="importBtn">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L9 8m4-4v12"/>
+                </svg>
+                Import
+            </button>
+            <input type="file" id="importFile" accept=".json">
+            <button class="btn" id="listBtn">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+                Lists
+            </button>
+            <button class="btn" id="settingsBtn">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+                Settings
+            </button>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Quadrant View -->
+        <div class="matrix" id="matrixView">
+            <div class="quadrant quadrant-1" data-quadrant="1">
+                <div class="quadrant-header">
+                    <div>
+                        <div class="quadrant-title">Urgent & Important</div>
+                    </div>
+                    <div class="quadrant-label" id="q1Label">Do This</div>
+                </div>
+                <div class="quadrant-items" id="q1Items"></div>
+            </div>
+
+            <div class="quadrant quadrant-2" data-quadrant="2">
+                <div class="quadrant-header">
+                    <div>
+                        <div class="quadrant-title">Less Urgent & Important</div>
+                    </div>
+                    <div class="quadrant-label" id="q2Label">Schedule This</div>
+                </div>
+                <div class="quadrant-items" id="q2Items"></div>
+            </div>
+
+            <div class="quadrant quadrant-3" data-quadrant="3">
+                <div class="quadrant-header">
+                    <div>
+                        <div class="quadrant-title">Urgent & Less Important</div>
+                    </div>
+                    <div class="quadrant-label" id="q3Label">Delegate This</div>
+                </div>
+                <div class="quadrant-items" id="q3Items"></div>
+            </div>
+
+            <div class="quadrant quadrant-4" data-quadrant="4">
+                <div class="quadrant-header">
+                    <div>
+                        <div class="quadrant-title">Less Urgent & Less Important</div>
+                    </div>
+                    <div class="quadrant-label" id="q4Label">Consider This</div>
+                </div>
+                <div class="quadrant-items" id="q4Items"></div>
+            </div>
+        </div>
+
+        <!-- Category View -->
+        <div class="list-view" id="categoryView"></div>
+
+        <!-- Project View -->
+        <div class="list-view" id="projectView"></div>
+    </div>
+
+    <!-- Add/Edit Task Modal -->
+    <div class="modal" id="taskModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Add Task</h2>
+                <button class="close-btn" id="closeTaskModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="taskForm">
+                    <input type="hidden" id="taskId">
+
+                    <div class="form-group">
+                        <label for="taskTitle">Title</label>
+                        <input type="text" id="taskTitle" maxlength="256" required autofocus>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="taskNotes">Notes (Markdown)</label>
+                        <textarea id="taskNotes"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Priority</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="taskUrgent">
+                                <label for="taskUrgent">Urgent</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="taskImportant">
+                                <label for="taskImportant">Important</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="taskCategory">Category</label>
+                        <select id="taskCategory">
+                            <option value="">None</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="taskProject">Project</label>
+                        <select id="taskProject">
+                            <option value="">None</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="taskDueDate">Due Date</label>
+                        <input type="date" id="taskDueDate">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Status</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="taskRecurring">
+                                <label for="taskRecurring">Recurring</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="taskCompleted">
+                                <label for="taskCompleted">Completed</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group hidden" id="taskDatesGroup">
+                        <label>Task History</label>
+                        <div class="task-dates-grid">
+                            <div>
+                                <div class="date-field-label">Created</div>
+                                <input type="text" id="taskCreatedDate" readonly class="readonly-input">
+                            </div>
+                            <div>
+                                <div class="date-field-label">Modified</div>
+                                <input type="text" id="taskModifiedDate" readonly class="readonly-input">
+                            </div>
+                            <div id="taskCompletedDateContainer" class="hidden">
+                                <div class="date-field-label">Completed</div>
+                                <input type="text" id="taskCompletedDate" readonly class="readonly-input">
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <div class="modal-actions">
+                    <button type="button" class="btn" id="cancelTaskBtn">Cancel</button>
+                    <button type="button" class="btn delete-btn hidden" id="deleteTaskBtn">Delete</button>
+                    <button type="submit" class="btn btn-primary" id="saveTaskBtn">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lists Management Modal -->
+    <div class="modal" id="listsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Manage Lists</h2>
+                <button class="close-btn" id="closeListsModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="lists-section-spacing">
+                    <h3 class="lists-section-title">Categories</h3>
+                    <div id="categoriesList" class="list-items"></div>
+                    <button class="btn btn-primary full-width-btn" id="addCategoryBtn">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="small-icon">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        Add Category
+                    </button>
+                </div>
+
+                <div>
+                    <h3 class="lists-section-title">Projects</h3>
+                    <div id="projectsList" class="list-items"></div>
+                    <button class="btn btn-primary full-width-btn" id="addProjectBtn">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="small-icon">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        Add Project
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- List Item Edit Modal -->
+    <div class="modal" id="listItemModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="listItemModalTitle">Add Category</h2>
+                <button class="close-btn" id="closeListItemModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="listItemForm">
+                    <input type="hidden" id="listItemType">
+                    <input type="hidden" id="listItemId">
+
+                    <div class="form-group">
+                        <label for="listItemName">Name</label>
+                        <input type="text" id="listItemName" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="listItemColor">Color</label>
+                        <div class="color-picker-group">
+                            <input type="color" id="listItemColor" value="#6c63ff">
+                            <input type="text" id="listItemColorHex" value="#6c63ff" pattern="^#[0-9A-Fa-f]{6}$">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="listItemStartDate">Start Date</label>
+                        <input type="date" id="listItemStartDate">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="listItemEndDate">End Date</label>
+                        <input type="date" id="listItemEndDate">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <div class="modal-actions">
+                    <button type="button" class="btn" id="cancelListItemBtn">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="saveListItemBtn">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Quadrant Settings</h2>
+                <button class="close-btn" id="closeSettingsModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Theme</label>
+                    <div class="flex-container">
+                        <button type="button" class="btn flex-1" id="toggleThemeBtn">
+                            <svg id="themeIcon" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="medium-icon">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+                            </svg>
+                            <span id="themeText">Switch to Light Theme</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Quadrant 1 (Urgent & Important)</label>
+                    <div class="color-picker-group">
+                        <input type="color" id="q1Color" value="#AEE7B1">
+                        <input type="text" id="q1ColorHex" value="#AEE7B1">
+                    </div>
+                    <input type="text" id="q1LabelText" value="Do This" class="q-label-input" placeholder="Label">
+                </div>
+
+                <div class="form-group">
+                    <label>Quadrant 2 (Less Urgent & Important)</label>
+                    <div class="color-picker-group">
+                        <input type="color" id="q2Color" value="#ABBEE1">
+                        <input type="text" id="q2ColorHex" value="#ABBEE1">
+                    </div>
+                    <input type="text" id="q2LabelText" value="Schedule This" class="q-label-input" placeholder="Label">
+                </div>
+
+                <div class="form-group">
+                    <label>Quadrant 3 (Urgent & Less Important)</label>
+                    <div class="color-picker-group">
+                        <input type="color" id="q3Color" value="#BCB5F0">
+                        <input type="text" id="q3ColorHex" value="#BCB5F0">
+                    </div>
+                    <input type="text" id="q3LabelText" value="Delegate This" class="q-label-input" placeholder="Label">
+                </div>
+
+                <div class="form-group">
+                    <label>Quadrant 4 (Less Urgent & Less Important)</label>
+                    <div class="color-picker-group">
+                        <input type="color" id="q4Color" value="#F5D26C">
+                        <input type="text" id="q4ColorHex" value="#F5D26C">
+                    </div>
+                    <input type="text" id="q4LabelText" value="Consider This" class="q-label-input" placeholder="Label">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="modal-actions">
+                    <button class="btn delete-btn" id="clearDataBtn">Clear All Data</button>
+                    <button class="btn" id="resetSettingsBtn">Reset to Defaults</button>
+                    <button class="btn btn-primary" id="saveSettingsBtn">Save Settings</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
