@@ -4,10 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FirstThingsFirst - Priority Matrix</title>
-    <!-- Uncomment the next line if serving over HTTP/HTTPS for PWA support -->
-    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <!-- Uncomment the line below if serving over HTTP/HTTPS for PWA support -->
+    <!-- <link rel="manifest" href="manifest.json"> -->
     <meta name="theme-color" content="#1a1a2e">
     <link rel="stylesheet" href="app.css">
+            .modal-footer {
+                padding: 1.25rem;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="header">
@@ -16,19 +22,19 @@
                 <!-- Q1 - Top Left - Green -->
                 <rect x="5" y="5" width="40" height="40" rx="6" fill="#AEE7B1" opacity="0.9"/>
                 <text x="25" y="33" font-family="Arial" font-weight="bold" font-size="20" text-anchor="middle" fill="#0a0a15">1</text>
-
+                
                 <!-- Q2 - Top Right - Blue -->
                 <rect x="55" y="5" width="40" height="40" rx="6" fill="#ABBEE1" opacity="0.9"/>
                 <text x="75" y="33" font-family="Arial" font-weight="bold" font-size="20" text-anchor="middle" fill="#0a0a15">2</text>
-
+                
                 <!-- Q3 - Bottom Left - Purple -->
                 <rect x="5" y="55" width="40" height="40" rx="6" fill="#BCB5F0" opacity="0.9"/>
                 <text x="25" y="83" font-family="Arial" font-weight="bold" font-size="20" text-anchor="middle" fill="#0a0a15">3</text>
-
+                
                 <!-- Q4 - Bottom Right - Yellow -->
                 <rect x="55" y="55" width="40" height="40" rx="6" fill="#F5D26C" opacity="0.9"/>
                 <text x="75" y="83" font-family="Arial" font-weight="bold" font-size="20" text-anchor="middle" fill="#0a0a15">4</text>
-
+                
                 <!-- Center cross lines -->
                 <line x1="50" y1="10" x2="50" y2="90" stroke="#e8e8f0" stroke-width="2" opacity="0.3"/>
                 <line x1="10" y1="50" x2="90" y2="50" stroke="#e8e8f0" stroke-width="2" opacity="0.3"/>
@@ -48,32 +54,69 @@
                 </svg>
                 View: Quadrant
             </button>
-            <button class="btn" id="exportBtn">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
-                </svg>
-                Export
-            </button>
-            <button class="btn" id="importBtn">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L9 8m4-4v12"/>
-                </svg>
-                Import
-            </button>
+            
+            <!-- Data Dropdown -->
+            <div class="dropdown">
+                <button class="btn" id="dataBtn">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/>
+                    </svg>
+                    Data
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 12px; height: 12px;">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+                <div class="dropdown-content" id="dataDropdown">
+                    <button class="dropdown-item" id="exportBtn">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                        </svg>
+                        Export Data
+                    </button>
+                    <button class="dropdown-item" id="importBtn">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L9 8m4-4v12"/>
+                        </svg>
+                        Import Data
+                    </button>
+                </div>
+            </div>
             <input type="file" id="importFile" accept=".json">
-            <button class="btn" id="listBtn">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-                </svg>
-                Lists
-            </button>
-            <button class="btn" id="settingsBtn">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                </svg>
-                Settings
-            </button>
+            
+            <!-- Settings Dropdown -->
+            <div class="dropdown">
+                <button class="btn" id="settingsDropdownBtn">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                    Settings
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 12px; height: 12px;">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+                <div class="dropdown-content" id="settingsDropdown">
+                    <button class="dropdown-item" id="listBtn">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                        </svg>
+                        Manage Lists
+                    </button>
+                    <button class="dropdown-item" id="settingsBtn">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/>
+                        </svg>
+                        Manage Quadrants
+                    </button>
+                    <div class="dropdown-divider"></div>
+                    <button class="dropdown-item" id="clearDataBtn" style="color: #ff3b30;">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                        Clear All Data
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -138,7 +181,7 @@
             <div class="modal-body">
                 <form id="taskForm">
                     <input type="hidden" id="taskId">
-
+                    
                     <div class="form-group">
                         <label for="taskTitle">Title</label>
                         <input type="text" id="taskTitle" maxlength="256" required autofocus>
@@ -269,7 +312,7 @@
                 <form id="listItemForm">
                     <input type="hidden" id="listItemType">
                     <input type="hidden" id="listItemId">
-
+                    
                     <div class="form-group">
                         <label for="listItemName">Name</label>
                         <input type="text" id="listItemName" required>
@@ -361,7 +404,6 @@
             </div>
             <div class="modal-footer">
                 <div class="modal-actions">
-                    <button class="btn delete-btn" id="clearDataBtn">Clear All Data</button>
                     <button class="btn" id="resetSettingsBtn">Reset to Defaults</button>
                     <button class="btn btn-primary" id="saveSettingsBtn">Save Settings</button>
                 </div>

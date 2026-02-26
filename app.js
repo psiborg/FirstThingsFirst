@@ -54,11 +54,44 @@ class FirstThingsFirst {
         // Toolbar buttons
         document.getElementById('addBtn').addEventListener('click', () => this.openTaskModal());
         document.getElementById('viewBtn').addEventListener('click', () => this.toggleView());
-        document.getElementById('exportBtn').addEventListener('click', () => this.exportData());
-        document.getElementById('importBtn').addEventListener('click', () => document.getElementById('importFile').click());
+        
+        // Data dropdown
+        document.getElementById('dataBtn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.toggleDropdown('dataDropdown');
+        });
+        document.getElementById('exportBtn').addEventListener('click', () => {
+            this.closeAllDropdowns();
+            this.exportData();
+        });
+        document.getElementById('importBtn').addEventListener('click', () => {
+            this.closeAllDropdowns();
+            document.getElementById('importFile').click();
+        });
         document.getElementById('importFile').addEventListener('change', (e) => this.importData(e));
-        document.getElementById('listBtn').addEventListener('click', () => this.openListsModal());
-        document.getElementById('settingsBtn').addEventListener('click', () => this.openSettingsModal());
+        
+        // Settings dropdown
+        document.getElementById('settingsDropdownBtn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.toggleDropdown('settingsDropdown');
+        });
+        document.getElementById('listBtn').addEventListener('click', () => {
+            this.closeAllDropdowns();
+            this.openListsModal();
+        });
+        document.getElementById('settingsBtn').addEventListener('click', () => {
+            this.closeAllDropdowns();
+            this.openSettingsModal();
+        });
+        document.getElementById('clearDataBtn').addEventListener('click', () => {
+            this.closeAllDropdowns();
+            this.clearAllData();
+        });
+        
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', () => {
+            this.closeAllDropdowns();
+        });
 
         // Task Modal
         document.getElementById('closeTaskModal').addEventListener('click', () => this.closeTaskModal());
@@ -79,11 +112,10 @@ class FirstThingsFirst {
         // Color picker sync
         this.setupColorPickers();
 
-        // Settings Modal
+        // Settings Modal (modal-specific actions only)
         document.getElementById('closeSettingsModal').addEventListener('click', () => this.closeSettingsModal());
         document.getElementById('saveSettingsBtn').addEventListener('click', () => this.saveSettings());
         document.getElementById('resetSettingsBtn').addEventListener('click', () => this.resetSettings());
-        document.getElementById('clearDataBtn').addEventListener('click', () => this.clearAllData());
         document.getElementById('toggleThemeBtn').addEventListener('click', () => this.toggleTheme());
 
         // Drag and drop
@@ -543,6 +575,26 @@ class FirstThingsFirst {
         document.getElementById('projectView').classList.toggle('active', this.currentView === 'project');
 
         this.renderCurrentView();
+    }
+
+    // Dropdown Management
+    toggleDropdown(dropdownId) {
+        const dropdown = document.getElementById(dropdownId);
+        const isOpen = dropdown.classList.contains('show');
+        
+        // Close all dropdowns first
+        this.closeAllDropdowns();
+        
+        // Toggle this dropdown
+        if (!isOpen) {
+            dropdown.classList.add('show');
+        }
+    }
+
+    closeAllDropdowns() {
+        document.querySelectorAll('.dropdown-content').forEach(dropdown => {
+            dropdown.classList.remove('show');
+        });
     }
 
     // Import/Export
