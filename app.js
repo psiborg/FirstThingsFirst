@@ -581,7 +581,10 @@ class FirstThingsFirst {
         const dates = [startDate, endDate].filter(Boolean).join(' - ');
 
         return `
-            <div class="list-item-row">
+            <div class="list-item-row" draggable="true" data-item-id="${item.id}" data-item-type="${type}">
+                <svg class="drag-handle" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16"/>
+                </svg>
                 <div class="list-item-color" style="background: ${item.color}"></div>
                 <div class="list-item-info">
                     <div class="list-item-name">${this.escapeHtml(item.name)}</div>
@@ -607,6 +610,54 @@ class FirstThingsFirst {
                 const type = btn.dataset.deleteList;
                 const id = btn.dataset.itemId;
                 this.deleteListItem(type, id);
+            });
+        });
+
+        // Add drag and drop listeners
+        document.querySelectorAll('.list-item-row').forEach(item => {
+            item.addEventListener('dragstart', (e) => {
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/html', item.innerHTML);
+                e.dataTransfer.setData('itemId', item.dataset.itemId);
+                e.dataTransfer.setData('itemType', item.dataset.itemType);
+                item.classList.add('dragging');
+            });
+
+            item.addEventListener('dragend', (e) => {
+                item.classList.remove('dragging');
+                document.querySelectorAll('.list-item-row').forEach(row => {
+                    row.classList.remove('drag-over');
+                });
+            });
+
+            item.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+                
+                const draggingItem = document.querySelector('.list-item-row.dragging');
+                if (draggingItem && draggingItem !== item && 
+                    draggingItem.dataset.itemType === item.dataset.itemType) {
+                    item.classList.add('drag-over');
+                }
+            });
+
+            item.addEventListener('dragleave', (e) => {
+                item.classList.remove('drag-over');
+            });
+
+            item.addEventListener('drop', (e) => {
+                e.preventDefault();
+                item.classList.remove('drag-over');
+                
+                const draggedId = e.dataTransfer.getData('itemId');
+                const draggedType = e.dataTransfer.getData('itemType');
+                const targetId = item.dataset.itemId;
+                const targetType = item.dataset.itemType;
+
+                // Only allow reordering within the same type
+                if (draggedType === targetType && draggedId !== targetId) {
+                    this.reorderListItems(draggedType, draggedId, targetId);
+                }
             });
         });
     }
@@ -717,6 +768,29 @@ class FirstThingsFirst {
             } else {
                 this.renderProjectsList();
             }
+        }
+    }
+
+    reorderListItems(type, draggedId, targetId) {
+        const items = type === 'category' ? this.categories : this.projects;
+        
+        // Find indices
+        const draggedIndex = items.findIndex(item => item.id === draggedId);
+        const targetIndex = items.findIndex(item => item.id === targetId);
+        
+        if (draggedIndex === -1 || targetIndex === -1) return;
+        
+        // Remove dragged item and insert at target position
+        const [draggedItem] = items.splice(draggedIndex, 1);
+        items.splice(targetIndex, 0, draggedItem);
+        
+        // Save and re-render
+        this.saveData();
+        
+        if (type === 'category') {
+            this.renderCategoriesList();
+        } else {
+            this.renderProjectsList();
         }
     }
 
