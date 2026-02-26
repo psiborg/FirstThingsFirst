@@ -401,6 +401,60 @@ class FirstThingsFirst {
         `;
     }
 
+    renderTaskItemForView(task, viewType) {
+        const category = this.categories.find(c => c.id === task.category);
+        const project = this.projects.find(p => p.id === task.project);
+        
+        let metaHtml = '';
+        
+        if (task.dueDate) {
+            // Parse date in local timezone to avoid off-by-one errors
+            const [year, month, day] = task.dueDate.split('-').map(Number);
+            const dueDate = new Date(year, month - 1, day);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const due = new Date(dueDate);
+            due.setHours(0, 0, 0, 0);
+            const isOverdue = due < today && !task.completed;
+            
+            metaHtml += `<span class="task-due" style="color: ${isOverdue ? '#ff3b30' : 'inherit'}">
+                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+                ${dueDate.toLocaleDateString()}
+            </span>`;
+        }
+        
+        // Show Urgent/Important tags in category and project views
+        if (task.urgent) {
+            metaHtml += `<span class="task-tag" style="background: rgba(255, 59, 48, 0.15); color: #ff3b30; border: 1px solid rgba(255, 59, 48, 0.3);">⚡ Urgent</span>`;
+        }
+        
+        if (task.important) {
+            metaHtml += `<span class="task-tag" style="background: rgba(255, 149, 0, 0.15); color: #ff9500; border: 1px solid rgba(255, 149, 0, 0.3);">★ Important</span>`;
+        }
+        
+        // In category view, show project tag (if exists)
+        // In project view, show category tag (if exists)
+        if (viewType === 'category' && project) {
+            metaHtml += `<span class="task-tag" style="background: ${project.color}22; color: ${project.color}; border: 1px solid ${project.color}44;">${project.name}</span>`;
+        } else if (viewType === 'project' && category) {
+            metaHtml += `<span class="task-tag" style="background: ${category.color}22; color: ${category.color}; border: 1px solid ${category.color}44;">${category.name}</span>`;
+        }
+
+        if (task.recurring) {
+            metaHtml += `<span class="task-tag" style="background: rgba(108, 99, 255, 0.15); color: #6c63ff; border: 1px solid rgba(108, 99, 255, 0.3);">↻ Recurring</span>`;
+        }
+
+        return `
+            <div class="task-item ${task.completed ? 'completed' : ''}" 
+                 data-task-id="${task.id}">
+                <div class="task-title">${this.escapeHtml(task.title)}</div>
+                ${metaHtml ? `<div class="task-meta">${metaHtml}</div>` : ''}
+            </div>
+        `;
+    }
+
     renderCategoryView() {
         const container = document.getElementById('categoryView');
         const categoriesWithNone = [{ id: '', name: 'Uncategorized' }, ...this.categories];
@@ -415,7 +469,7 @@ class FirstThingsFirst {
                         ${this.escapeHtml(category.name)} (${tasks.length})
                     </h3>
                     <div class="quadrant-items">
-                        ${tasks.map(task => this.renderTaskItem(task)).join('')}
+                        ${tasks.map(task => this.renderTaskItemForView(task, 'category')).join('')}
                     </div>
                 </div>
             `;
@@ -443,7 +497,7 @@ class FirstThingsFirst {
                         ${this.escapeHtml(project.name)} (${tasks.length})
                     </h3>
                     <div class="quadrant-items">
-                        ${tasks.map(task => this.renderTaskItem(task)).join('')}
+                        ${tasks.map(task => this.renderTaskItemForView(task, 'project')).join('')}
                     </div>
                 </div>
             `;
