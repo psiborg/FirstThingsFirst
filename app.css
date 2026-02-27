@@ -1,4 +1,4 @@
-        
+
         :root {
             --q1-color: #AEE7B1;
             --q2-color: #ABBEE1;
@@ -787,12 +787,12 @@
                 grid-template-columns: 1fr;
                 grid-template-rows: repeat(4, minmax(200px, 1fr));
             }
-            
+
             .container {
                 height: auto;
                 overflow-y: auto;
             }
-            
+
             .list-view {
                 overflow-y: visible;
             }

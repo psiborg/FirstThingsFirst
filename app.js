@@ -8,7 +8,7 @@ class FirstThingsFirst {
         this.settings = {
             q1: { color: '#AEE7B1', label: 'Do This' },
             q2: { color: '#ABBEE1', label: 'Schedule This' },
-            q3: { color: '#BCB5F0', label: 'Delegate This' },
+            q3: { color: '#BCB5F0', label: 'Assign This' },
             q4: { color: '#F5D26C', label: 'Consider This' },
             theme: 'dark'
         };
@@ -22,6 +22,7 @@ class FirstThingsFirst {
         this.loadData();
         this.setupEventListeners();
         this.applyTheme();
+        this.updateThemeDropdownButton();
         this.applySettings();
         this.renderQuadrants();
         this.updateCategoryProjectSelects();
@@ -53,12 +54,36 @@ class FirstThingsFirst {
     setupEventListeners() {
         // Toolbar buttons
         document.getElementById('addBtn').addEventListener('click', () => this.openTaskModal());
-        document.getElementById('viewBtn').addEventListener('click', () => this.toggleView());
-        
-        // Data dropdown
-        document.getElementById('dataBtn').addEventListener('click', (e) => {
+
+        // View dropdown
+        document.getElementById('viewDropdownBtn').addEventListener('click', (e) => {
             e.stopPropagation();
-            this.toggleDropdown('dataDropdown');
+            this.toggleDropdown('viewDropdown');
+        });
+        document.querySelectorAll('[data-view]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const view = btn.dataset.view;
+                this.closeAllDropdowns();
+                this.setView(view);
+            });
+        });
+
+        // Settings dropdown
+        document.getElementById('settingsDropdownBtn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.toggleDropdown('settingsDropdown');
+        });
+        document.getElementById('themeToggleBtn').addEventListener('click', () => {
+            this.toggleTheme();
+            this.updateThemeDropdownButton();
+        });
+        document.getElementById('listBtn').addEventListener('click', () => {
+            this.closeAllDropdowns();
+            this.openListsModal();
+        });
+        document.getElementById('settingsBtn').addEventListener('click', () => {
+            this.closeAllDropdowns();
+            this.openSettingsModal();
         });
         document.getElementById('exportBtn').addEventListener('click', () => {
             this.closeAllDropdowns();
@@ -69,25 +94,11 @@ class FirstThingsFirst {
             document.getElementById('importFile').click();
         });
         document.getElementById('importFile').addEventListener('change', (e) => this.importData(e));
-        
-        // Settings dropdown
-        document.getElementById('settingsDropdownBtn').addEventListener('click', (e) => {
-            e.stopPropagation();
-            this.toggleDropdown('settingsDropdown');
-        });
-        document.getElementById('listBtn').addEventListener('click', () => {
-            this.closeAllDropdowns();
-            this.openListsModal();
-        });
-        document.getElementById('settingsBtn').addEventListener('click', () => {
-            this.closeAllDropdowns();
-            this.openSettingsModal();
-        });
         document.getElementById('clearDataBtn').addEventListener('click', () => {
             this.closeAllDropdowns();
             this.clearAllData();
         });
-        
+
         // Close dropdowns when clicking outside
         document.addEventListener('click', () => {
             this.closeAllDropdowns();
@@ -116,7 +127,6 @@ class FirstThingsFirst {
         document.getElementById('closeSettingsModal').addEventListener('click', () => this.closeSettingsModal());
         document.getElementById('saveSettingsBtn').addEventListener('click', () => this.saveSettings());
         document.getElementById('resetSettingsBtn').addEventListener('click', () => this.resetSettings());
-        document.getElementById('toggleThemeBtn').addEventListener('click', () => this.toggleTheme());
 
         // Drag and drop
         this.setupDragAndDrop();
@@ -159,7 +169,7 @@ class FirstThingsFirst {
 
     setupDragAndDrop() {
         const quadrants = document.querySelectorAll('.quadrant');
-        
+
         quadrants.forEach(quadrant => {
             quadrant.addEventListener('dragover', (e) => {
                 e.preventDefault();
@@ -173,7 +183,7 @@ class FirstThingsFirst {
             quadrant.addEventListener('drop', (e) => {
                 e.preventDefault();
                 quadrant.classList.remove('drag-over');
-                
+
                 const taskId = e.dataTransfer.getData('taskId');
                 const targetQuadrant = parseInt(quadrant.dataset.quadrant);
                 this.moveTask(taskId, targetQuadrant);
@@ -218,7 +228,7 @@ class FirstThingsFirst {
                 datesGroup.classList.remove('hidden');
                 document.getElementById('taskCreatedDate').value = this.formatDateTime(task.createdAt);
                 document.getElementById('taskModifiedDate').value = this.formatDateTime(task.modifiedAt || task.createdAt);
-                
+
                 // Show completed date if task is completed
                 if (task.completed && task.completedAt) {
                     completedDateContainer.classList.remove('hidden');
@@ -235,7 +245,7 @@ class FirstThingsFirst {
         }
 
         modal.classList.add('active');
-        
+
         // Focus on title field after modal animation
         setTimeout(() => {
             document.getElementById('taskTitle').focus();
@@ -251,8 +261,8 @@ class FirstThingsFirst {
         e.preventDefault();
 
         const now = new Date().toISOString();
-        const wasCompleted = this.editingTaskId ? 
-            this.tasks.find(t => t.id === this.editingTaskId)?.completed : 
+        const wasCompleted = this.editingTaskId ?
+            this.tasks.find(t => t.id === this.editingTaskId)?.completed :
             false;
         const isNowCompleted = document.getElementById('taskCompleted').checked;
 
@@ -267,8 +277,8 @@ class FirstThingsFirst {
             dueDate: document.getElementById('taskDueDate').value,
             recurring: document.getElementById('taskRecurring').checked,
             completed: isNowCompleted,
-            createdAt: this.editingTaskId ? 
-                this.tasks.find(t => t.id === this.editingTaskId)?.createdAt : 
+            createdAt: this.editingTaskId ?
+                this.tasks.find(t => t.id === this.editingTaskId)?.createdAt :
                 now,
             modifiedAt: now
         };
@@ -346,13 +356,13 @@ class FirstThingsFirst {
         for (let i = 1; i <= 4; i++) {
             const container = document.getElementById(`q${i}Items`);
             const tasks = this.tasks.filter(t => this.getQuadrant(t) === i);
-            
+
             // Sort tasks: due date tasks first (chronologically), then others, completed last
             tasks.sort((a, b) => {
                 // Completed tasks go to bottom
                 if (a.completed && !b.completed) return 1;
                 if (!a.completed && b.completed) return -1;
-                
+
                 // Among non-completed tasks
                 if (!a.completed && !b.completed) {
                     // Tasks with due dates come first
@@ -363,7 +373,7 @@ class FirstThingsFirst {
                         return new Date(a.dueDate) - new Date(b.dueDate);
                     }
                 }
-                
+
                 return 0;
             });
 
@@ -390,9 +400,9 @@ class FirstThingsFirst {
     renderTaskItem(task) {
         const category = this.categories.find(c => c.id === task.category);
         const project = this.projects.find(p => p.id === task.project);
-        
+
         let metaHtml = '';
-        
+
         if (task.dueDate) {
             // Parse date in local timezone to avoid off-by-one errors
             const [year, month, day] = task.dueDate.split('-').map(Number);
@@ -402,7 +412,7 @@ class FirstThingsFirst {
             const due = new Date(dueDate);
             due.setHours(0, 0, 0, 0);
             const isOverdue = due < today && !task.completed;
-            
+
             metaHtml += `<span class="task-due" style="color: ${isOverdue ? '#ff3b30' : 'inherit'}">
                 <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
@@ -410,11 +420,11 @@ class FirstThingsFirst {
                 ${dueDate.toLocaleDateString()}
             </span>`;
         }
-        
+
         if (category) {
             metaHtml += `<span class="task-tag" style="background: ${category.color}22; color: ${category.color}; border: 1px solid ${category.color}44;">${category.name}</span>`;
         }
-        
+
         if (project) {
             metaHtml += `<span class="task-tag" style="background: ${project.color}22; color: ${project.color}; border: 1px solid ${project.color}44;">${project.name}</span>`;
         }
@@ -424,8 +434,8 @@ class FirstThingsFirst {
         }
 
         return `
-            <div class="task-item ${task.completed ? 'completed' : ''}" 
-                 data-task-id="${task.id}" 
+            <div class="task-item ${task.completed ? 'completed' : ''}"
+                 data-task-id="${task.id}"
                  draggable="true">
                 <div class="task-title">${this.escapeHtml(task.title)}</div>
                 ${metaHtml ? `<div class="task-meta">${metaHtml}</div>` : ''}
@@ -436,9 +446,9 @@ class FirstThingsFirst {
     renderTaskItemForView(task, viewType) {
         const category = this.categories.find(c => c.id === task.category);
         const project = this.projects.find(p => p.id === task.project);
-        
+
         let metaHtml = '';
-        
+
         if (task.dueDate) {
             // Parse date in local timezone to avoid off-by-one errors
             const [year, month, day] = task.dueDate.split('-').map(Number);
@@ -448,7 +458,7 @@ class FirstThingsFirst {
             const due = new Date(dueDate);
             due.setHours(0, 0, 0, 0);
             const isOverdue = due < today && !task.completed;
-            
+
             metaHtml += `<span class="task-due" style="color: ${isOverdue ? '#ff3b30' : 'inherit'}">
                 <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
@@ -456,16 +466,16 @@ class FirstThingsFirst {
                 ${dueDate.toLocaleDateString()}
             </span>`;
         }
-        
+
         // Show Urgent/Important tags in category and project views
         if (task.urgent) {
             metaHtml += `<span class="task-tag" style="background: rgba(255, 59, 48, 0.15); color: #ff3b30; border: 1px solid rgba(255, 59, 48, 0.3);">⚡ Urgent</span>`;
         }
-        
+
         if (task.important) {
             metaHtml += `<span class="task-tag" style="background: rgba(255, 149, 0, 0.15); color: #ff9500; border: 1px solid rgba(255, 149, 0, 0.3);">★ Important</span>`;
         }
-        
+
         // In category view, show project tag (if exists)
         // In project view, show category tag (if exists)
         if (viewType === 'category' && project) {
@@ -479,7 +489,7 @@ class FirstThingsFirst {
         }
 
         return `
-            <div class="task-item ${task.completed ? 'completed' : ''}" 
+            <div class="task-item ${task.completed ? 'completed' : ''}"
                  data-task-id="${task.id}">
                 <div class="task-title">${this.escapeHtml(task.title)}</div>
                 ${metaHtml ? `<div class="task-meta">${metaHtml}</div>` : ''}
@@ -490,11 +500,11 @@ class FirstThingsFirst {
     renderCategoryView() {
         const container = document.getElementById('categoryView');
         const categoriesWithNone = [{ id: '', name: 'Uncategorized' }, ...this.categories];
-        
+
         container.innerHTML = categoriesWithNone.map(category => {
             const tasks = this.tasks.filter(t => (t.category || '') === category.id);
             if (tasks.length === 0) return '';
-            
+
             return `
                 <div class="list-section">
                     <h3 style="color: ${category.color || 'var(--text-primary)'}">
@@ -518,11 +528,11 @@ class FirstThingsFirst {
     renderProjectView() {
         const container = document.getElementById('projectView');
         const projectsWithNone = [{ id: '', name: 'No Project' }, ...this.projects];
-        
+
         container.innerHTML = projectsWithNone.map(project => {
             const tasks = this.tasks.filter(t => (t.project || '') === project.id);
             if (tasks.length === 0) return '';
-            
+
             return `
                 <div class="list-section">
                     <h3 style="color: ${project.color || 'var(--text-primary)'}">
@@ -553,21 +563,13 @@ class FirstThingsFirst {
         }
     }
 
-    // View Toggle
-    toggleView() {
-        const views = ['quadrant', 'category', 'project'];
-        const currentIndex = views.indexOf(this.currentView);
-        const nextIndex = (currentIndex + 1) % views.length;
-        this.currentView = views[nextIndex];
+    // View Management
+    setView(view) {
+        this.currentView = view;
 
-        // Update button text
+        // Update button label
         const viewNames = { quadrant: 'Quadrant', category: 'Category', project: 'Project' };
-        document.getElementById('viewBtn').innerHTML = `
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
-            </svg>
-            View: ${viewNames[this.currentView]}
-        `;
+        document.getElementById('viewLabel').textContent = `View: ${viewNames[view]}`;
 
         // Show/hide views
         document.getElementById('matrixView').style.display = this.currentView === 'quadrant' ? 'grid' : 'none';
@@ -581,10 +583,10 @@ class FirstThingsFirst {
     toggleDropdown(dropdownId) {
         const dropdown = document.getElementById(dropdownId);
         const isOpen = dropdown.classList.contains('show');
-        
+
         // Close all dropdowns first
         this.closeAllDropdowns();
-        
+
         // Toggle this dropdown
         if (!isOpen) {
             dropdown.classList.add('show');
@@ -625,18 +627,18 @@ class FirstThingsFirst {
         reader.onload = (event) => {
             try {
                 const data = JSON.parse(event.target.result);
-                
+
                 if (confirm('Import will replace all current data. Continue?')) {
                     this.tasks = data.tasks || [];
                     this.categories = data.categories || [];
                     this.projects = data.projects || [];
                     this.settings = data.settings || this.settings;
-                    
+
                     this.saveData();
                     this.applySettings();
                     this.updateCategoryProjectSelects();
                     this.renderCurrentView();
-                    
+
                     alert('Data imported successfully!');
                 }
             } catch (error) {
@@ -645,7 +647,7 @@ class FirstThingsFirst {
             }
         };
         reader.readAsText(file);
-        
+
         // Reset file input
         e.target.value = '';
     }
@@ -654,12 +656,12 @@ class FirstThingsFirst {
     openListsModal() {
         const modal = document.getElementById('listsModal');
         const modalBody = modal.querySelector('.modal-body');
-        
+
         // Scroll modal body to top
         if (modalBody) {
             modalBody.scrollTop = 0;
         }
-        
+
         modal.classList.add('active');
         this.renderCategoriesList();
         this.renderProjectsList();
@@ -739,9 +741,9 @@ class FirstThingsFirst {
             item.addEventListener('dragover', (e) => {
                 e.preventDefault();
                 e.dataTransfer.dropEffect = 'move';
-                
+
                 const draggingItem = document.querySelector('.list-item-row.dragging');
-                if (draggingItem && draggingItem !== item && 
+                if (draggingItem && draggingItem !== item &&
                     draggingItem.dataset.itemType === item.dataset.itemType) {
                     item.classList.add('drag-over');
                 }
@@ -754,7 +756,7 @@ class FirstThingsFirst {
             item.addEventListener('drop', (e) => {
                 e.preventDefault();
                 item.classList.remove('drag-over');
-                
+
                 const draggedId = e.dataTransfer.getData('itemId');
                 const draggedType = e.dataTransfer.getData('itemType');
                 const targetId = item.dataset.itemId;
@@ -773,15 +775,15 @@ class FirstThingsFirst {
         const modal = document.getElementById('listItemModal');
         const modalBody = modal.querySelector('.modal-body');
         const form = document.getElementById('listItemForm');
-        
+
         // Scroll modal body to top
         if (modalBody) {
             modalBody.scrollTop = 0;
         }
-        
+
         document.getElementById('listItemType').value = type;
-        document.getElementById('listItemModalTitle').textContent = 
-            itemId ? `Edit ${type === 'category' ? 'Category' : 'Project'}` : 
+        document.getElementById('listItemModalTitle').textContent =
+            itemId ? `Edit ${type === 'category' ? 'Category' : 'Project'}` :
                     `Add ${type === 'category' ? 'Category' : 'Project'}`;
 
         form.reset();
@@ -804,7 +806,7 @@ class FirstThingsFirst {
         }
 
         modal.classList.add('active');
-        
+
         // Focus on name field after modal animation
         setTimeout(() => {
             document.getElementById('listItemName').focus();
@@ -840,7 +842,7 @@ class FirstThingsFirst {
         this.saveData();
         this.closeListItemModal();
         this.updateCategoryProjectSelects();
-        
+
         if (type === 'category') {
             this.renderCategoriesList();
         } else {
@@ -864,11 +866,11 @@ class FirstThingsFirst {
                     if (t.project === itemId) t.project = '';
                 });
             }
-            
+
             this.saveData();
             this.updateCategoryProjectSelects();
             this.renderCurrentView();
-            
+
             if (type === 'category') {
                 this.renderCategoriesList();
             } else {
@@ -879,20 +881,20 @@ class FirstThingsFirst {
 
     reorderListItems(type, draggedId, targetId) {
         const items = type === 'category' ? this.categories : this.projects;
-        
+
         // Find indices
         const draggedIndex = items.findIndex(item => item.id === draggedId);
         const targetIndex = items.findIndex(item => item.id === targetId);
-        
+
         if (draggedIndex === -1 || targetIndex === -1) return;
-        
+
         // Remove dragged item and insert at target position
         const [draggedItem] = items.splice(draggedIndex, 1);
         items.splice(targetIndex, 0, draggedItem);
-        
+
         // Save and re-render
         this.saveData();
-        
+
         if (type === 'category') {
             this.renderCategoriesList();
         } else {
@@ -915,17 +917,14 @@ class FirstThingsFirst {
     openSettingsModal() {
         const modal = document.getElementById('settingsModal');
         const modalBody = modal.querySelector('.modal-body');
-        
+
         // Scroll modal body to top
         if (modalBody) {
             modalBody.scrollTop = 0;
         }
-        
+
         modal.classList.add('active');
-        
-        // Update theme button
-        this.updateThemeButton();
-        
+
         // Load current settings
         for (let i = 1; i <= 4; i++) {
             document.getElementById(`q${i}Color`).value = this.settings[`q${i}`].color;
@@ -945,7 +944,7 @@ class FirstThingsFirst {
                 label: document.getElementById(`q${i}LabelText`).value
             };
         }
-        
+
         this.saveData();
         this.applySettings();
         this.closeSettingsModal();
@@ -957,11 +956,11 @@ class FirstThingsFirst {
             this.settings = {
                 q1: { color: '#AEE7B1', label: 'Do This' },
                 q2: { color: '#ABBEE1', label: 'Schedule This' },
-                q3: { color: '#BCB5F0', label: 'Delegate This' },
+                q3: { color: '#BCB5F0', label: 'Assign This' },
                 q4: { color: '#F5D26C', label: 'Consider This' },
                 theme: currentTheme
             };
-            
+
             this.saveData();
             this.applySettings();
             this.openSettingsModal(); // Refresh the form
@@ -970,14 +969,14 @@ class FirstThingsFirst {
 
     clearAllData() {
         const confirmed = confirm('⚠️ WARNING: This will permanently delete ALL your data including:\n\n• All tasks\n• All categories\n• All projects\n• All settings\n\nThis action cannot be undone!\n\nAre you sure you want to continue?');
-        
+
         if (confirmed) {
             const doubleConfirm = confirm('This is your last chance!\n\nClick OK to permanently delete everything, or Cancel to keep your data.');
-            
+
             if (doubleConfirm) {
                 // Clear local storage
                 localStorage.removeItem('firstthingsfirst_data');
-                
+
                 // Reset all data in memory
                 this.tasks = [];
                 this.categories = [];
@@ -985,18 +984,18 @@ class FirstThingsFirst {
                 this.settings = {
                     q1: { color: '#AEE7B1', label: 'Do This' },
                     q2: { color: '#ABBEE1', label: 'Schedule This' },
-                    q3: { color: '#BCB5F0', label: 'Delegate This' },
+                    q3: { color: '#BCB5F0', label: 'Assign This' },
                     q4: { color: '#F5D26C', label: 'Consider This' },
                     theme: 'dark'
                 };
-                
+
                 // Update UI
                 this.applyTheme();
                 this.applySettings();
                 this.updateCategoryProjectSelects();
                 this.renderCurrentView();
                 this.closeSettingsModal();
-                
+
                 alert('✓ All data has been cleared successfully.');
             }
         }
@@ -1005,7 +1004,7 @@ class FirstThingsFirst {
     toggleTheme() {
         this.settings.theme = this.settings.theme === 'dark' ? 'light' : 'dark';
         this.applyTheme();
-        this.updateThemeButton();
+        this.updateThemeDropdownButton();
         this.saveData();
     }
 
@@ -1017,10 +1016,10 @@ class FirstThingsFirst {
         }
     }
 
-    updateThemeButton() {
-        const themeText = document.getElementById('themeText');
-        const themeIcon = document.getElementById('themeIcon');
-        
+    updateThemeDropdownButton() {
+        const themeText = document.getElementById('themeTextDropdown');
+        const themeIcon = document.getElementById('themeIconDropdown');
+
         if (this.settings.theme === 'dark') {
             themeText.textContent = 'Switch to Light Theme';
             // Sun icon
@@ -1030,6 +1029,11 @@ class FirstThingsFirst {
             // Moon icon
             themeIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>';
         }
+    }
+
+    updateThemeButton() {
+        // Legacy method - kept for compatibility but unused
+        this.updateThemeDropdownButton();
     }
 
     applySettings() {
