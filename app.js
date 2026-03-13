@@ -1068,7 +1068,12 @@ class FirstThingsFirst {
 }
 
 // Initialize app
-const app = new FirstThingsFirst();
+//const app = new FirstThingsFirst();
+// Initialize app when DOM is fully loaded
+let app;
+document.addEventListener('DOMContentLoaded', () => {
+    app = new FirstThingsFirst();
+});
 
 // Register service worker for PWA (only works when served over HTTP/HTTPS)
 if ('serviceWorker' in navigator && window.location.protocol !== 'file:') {
