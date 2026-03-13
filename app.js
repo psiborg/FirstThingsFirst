@@ -8,7 +8,7 @@ class FirstThingsFirst {
         this.settings = {
             q1: { color: '#AEE7B1', label: 'Do This' },
             q2: { color: '#ABBEE1', label: 'Schedule This' },
-            q3: { color: '#BCB5F0', label: 'Assign This' },
+            q3: { color: '#BCB5F0', label: 'Delegate This' },
             q4: { color: '#F5D26C', label: 'Consider This' },
             theme: 'dark'
         };
@@ -52,6 +52,20 @@ class FirstThingsFirst {
 
     // Event Listeners
     setupEventListeners() {
+        // Check if critical elements exist
+        const criticalElements = [
+            'addBtn', 'viewDropdownBtn', 'settingsDropdownBtn',
+            'matrixView', 'categoryView', 'projectView'
+        ];
+
+        for (const id of criticalElements) {
+            if (!document.getElementById(id)) {
+                console.error(`Critical element not found: ${id}`);
+                console.error('DOM readyState:', document.readyState);
+                throw new Error(`Failed to initialize: element '${id}' not found in DOM`);
+            }
+        }
+
         // Toolbar buttons
         document.getElementById('addBtn').addEventListener('click', () => this.openTaskModal());
 
@@ -956,7 +970,7 @@ class FirstThingsFirst {
             this.settings = {
                 q1: { color: '#AEE7B1', label: 'Do This' },
                 q2: { color: '#ABBEE1', label: 'Schedule This' },
-                q3: { color: '#BCB5F0', label: 'Assign This' },
+                q3: { color: '#BCB5F0', label: 'Delegate This' },
                 q4: { color: '#F5D26C', label: 'Consider This' },
                 theme: currentTheme
             };
@@ -984,7 +998,7 @@ class FirstThingsFirst {
                 this.settings = {
                     q1: { color: '#AEE7B1', label: 'Do This' },
                     q2: { color: '#ABBEE1', label: 'Schedule This' },
-                    q3: { color: '#BCB5F0', label: 'Assign This' },
+                    q3: { color: '#BCB5F0', label: 'Delegate This' },
                     q4: { color: '#F5D26C', label: 'Consider This' },
                     theme: 'dark'
                 };
@@ -1067,13 +1081,21 @@ class FirstThingsFirst {
     }
 }
 
-// Initialize app
-//const app = new FirstThingsFirst();
 // Initialize app when DOM is fully loaded
 let app;
-document.addEventListener('DOMContentLoaded', () => {
+
+function initApp() {
     app = new FirstThingsFirst();
-});
+}
+
+// Handle both cases: DOM already loaded or still loading
+if (document.readyState === 'loading') {
+    // DOM is still loading, wait for it
+    document.addEventListener('DOMContentLoaded', initApp);
+} else {
+    // DOM is already loaded, initialize immediately
+    initApp();
+}
 
 // Register service worker for PWA (only works when served over HTTP/HTTPS)
 if ('serviceWorker' in navigator && window.location.protocol !== 'file:') {
