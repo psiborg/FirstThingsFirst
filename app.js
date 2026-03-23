@@ -108,6 +108,10 @@ class FirstThingsFirst {
             document.getElementById('importFile').click();
         });
         document.getElementById('importFile').addEventListener('change', (e) => this.importData(e));
+        document.getElementById('aboutBtn').addEventListener('click', () => {
+            this.closeAllDropdowns();
+            this.openAboutModal();
+        });
         document.getElementById('clearDataBtn').addEventListener('click', () => {
             this.closeAllDropdowns();
             this.clearAllData();
@@ -141,6 +145,10 @@ class FirstThingsFirst {
         document.getElementById('closeSettingsModal').addEventListener('click', () => this.closeSettingsModal());
         document.getElementById('saveSettingsBtn').addEventListener('click', () => this.saveSettings());
         document.getElementById('resetSettingsBtn').addEventListener('click', () => this.resetSettings());
+
+        // About Modal
+        document.getElementById('closeAboutModal').addEventListener('click', () => this.closeAboutModal());
+        document.getElementById('closeAboutBtn').addEventListener('click', () => this.closeAboutModal());
 
         // Drag and drop
         this.setupDragAndDrop();
@@ -949,6 +957,23 @@ class FirstThingsFirst {
 
     closeSettingsModal() {
         document.getElementById('settingsModal').classList.remove('active');
+    }
+
+    // About Modal
+    openAboutModal() {
+        const modal = document.getElementById('aboutModal');
+        const modalBody = modal.querySelector('.modal-body');
+        
+        // Scroll modal body to top
+        if (modalBody) {
+            modalBody.scrollTop = 0;
+        }
+        
+        modal.classList.add('active');
+    }
+
+    closeAboutModal() {
+        document.getElementById('aboutModal').classList.remove('active');
     }
 
     saveSettings() {

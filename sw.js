@@ -1,9 +1,10 @@
 // Service Worker for FirstThingsFirst PWA
 
-const CACHE_NAME = 'firstthingsfirst-v1';
+const CACHE_NAME = 'firstthingsfirst-v1.1';
 const urlsToCache = [
   '/',
   '/FirstThingsFirst/index.html',
+  '/FirstThingsFirst/app.css',
   '/FirstThingsFirst/app.js',
   '/FirstThingsFirst/manifest.json'
 ];
