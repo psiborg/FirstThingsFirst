@@ -24,8 +24,22 @@ class FirstThingsFirst {
         this.applyTheme();
         this.updateThemeDropdownButton();
         this.applySettings();
-        this.renderQuadrants();
         this.updateCategoryProjectSelects();
+
+        // Read initial view from URL hash, falling back to quadrant
+        const validViews = ['quadrant', 'category', 'project'];
+        const hashView = window.location.hash.slice(1);
+        const initialView = validViews.includes(hashView) ? hashView : 'quadrant';
+        this.setView(initialView);
+
+        // Keep view in sync when user navigates with browser back/forward
+        window.addEventListener('hashchange', () => {
+            const hash = window.location.hash.slice(1);
+            const view = validViews.includes(hash) ? hash : 'quadrant';
+            if (view !== this.currentView) {
+                this.setView(view);
+            }
+        });
     }
 
     // Data Management
@@ -248,13 +262,13 @@ class FirstThingsFirst {
 
                 // Show and populate date fields
                 datesGroup.classList.remove('hidden');
-                document.getElementById('taskCreatedDate').value = this.formatDateTime(task.createdAt);
-                document.getElementById('taskModifiedDate').value = this.formatDateTime(task.modifiedAt || task.createdAt);
+                document.getElementById('taskCreatedDate').textContent = this.formatDateTime(task.createdAt);
+                document.getElementById('taskModifiedDate').textContent = this.formatDateTime(task.modifiedAt || task.createdAt);
 
                 // Show completed date if task is completed
                 if (task.completed && task.completedAt) {
                     completedDateContainer.classList.remove('hidden');
-                    document.getElementById('taskCompletedDate').value = this.formatDateTime(task.completedAt);
+                    document.getElementById('taskCompletedDate').textContent = this.formatDateTime(task.completedAt);
                 } else {
                     completedDateContainer.classList.add('hidden');
                 }
@@ -374,10 +388,84 @@ class FirstThingsFirst {
     }
 
     // Rendering
-    renderQuadrants() {
+    renderQuadrants(searchQuery = '') {
+        // Check if this is initial render or search update
+        const searchContainer = document.getElementById('quadrantSearchContainer');
+        const isInitialRender = searchContainer && !searchContainer.querySelector('.search-bar');
+        
+        // Filter tasks based on search query
+        let filteredTasks = this.tasks;
+        if (searchQuery.trim()) {
+            const query = searchQuery.toLowerCase();
+            filteredTasks = this.tasks.filter(task => {
+                const titleMatch = task.title.toLowerCase().includes(query);
+                const notesMatch = task.notes && task.notes.toLowerCase().includes(query);
+                return titleMatch || notesMatch;
+            });
+        }
+
+        // Render search bar on initial render
+        if (isInitialRender) {
+            const searchBarHtml = `
+                <div class="search-bar">
+                    <div class="search-input-wrapper">
+                        <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                        <input 
+                            type="text" 
+                            class="search-input" 
+                            id="quadrantSearchInput"
+                            placeholder="Search tasks by title or notes..." 
+                            value="${this.escapeHtml(searchQuery)}"
+                        >
+                        <button class="search-clear ${searchQuery ? 'visible' : ''}" id="clearQuadrantSearch">
+                            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="search-results-info" id="quadrantSearchResultsInfo"></div>
+                </div>
+            `;
+            
+            searchContainer.innerHTML = searchBarHtml;
+            
+            // Attach search event listeners
+            const searchInput = document.getElementById('quadrantSearchInput');
+            const clearBtn = document.getElementById('clearQuadrantSearch');
+            
+            if (searchInput) {
+                searchInput.addEventListener('input', (e) => {
+                    this.renderQuadrants(e.target.value);
+                });
+            }
+            
+            if (clearBtn) {
+                clearBtn.addEventListener('click', () => {
+                    searchInput.value = '';
+                    searchInput.focus();
+                    this.renderQuadrants('');
+                });
+            }
+        }
+        
+        // Update results info and clear button visibility
+        const resultsInfo = document.getElementById('quadrantSearchResultsInfo');
+        const clearBtn = document.getElementById('clearQuadrantSearch');
+        
+        if (resultsInfo) {
+            resultsInfo.textContent = searchQuery ? `${filteredTasks.length} task${filteredTasks.length !== 1 ? 's' : ''} found` : '';
+        }
+        
+        if (clearBtn) {
+            clearBtn.classList.toggle('visible', !!searchQuery);
+        }
+
+        // Render quadrants with filtered tasks
         for (let i = 1; i <= 4; i++) {
             const container = document.getElementById(`q${i}Items`);
-            const tasks = this.tasks.filter(t => this.getQuadrant(t) === i);
+            const tasks = filteredTasks.filter(t => this.getQuadrant(t) === i);
 
             // Sort tasks: due date tasks first (chronologically), then others, completed last
             tasks.sort((a, b) => {
@@ -403,7 +491,7 @@ class FirstThingsFirst {
         }
 
         // Re-attach event listeners for task items
-        document.querySelectorAll('.task-item').forEach(item => {
+        document.querySelectorAll('#matrixView .task-item').forEach(item => {
             item.addEventListener('click', () => {
                 this.openTaskModal(item.dataset.taskId);
             });
@@ -510,21 +598,43 @@ class FirstThingsFirst {
             metaHtml += `<span class="task-tag" style="background: rgba(108, 99, 255, 0.15); color: #6c63ff; border: 1px solid rgba(108, 99, 255, 0.3);">↻ Recurring</span>`;
         }
 
+        // Add notes preview for project view
+        let notesPreview = '';
+        if ((viewType === 'project' || viewType === 'category') && task.notes && task.notes.trim()) {
+            notesPreview = `<div class="task-notes-preview">${this.escapeHtml(task.notes)}</div>`;
+        }
+
         return `
             <div class="task-item ${task.completed ? 'completed' : ''}"
                  data-task-id="${task.id}">
                 <div class="task-title">${this.escapeHtml(task.title)}</div>
                 ${metaHtml ? `<div class="task-meta">${metaHtml}</div>` : ''}
+                ${notesPreview}
             </div>
         `;
     }
 
-    renderCategoryView() {
+    renderCategoryView(searchQuery = '') {
         const container = document.getElementById('categoryView');
         const categoriesWithNone = [{ id: '', name: 'Uncategorized' }, ...this.categories];
 
-        container.innerHTML = categoriesWithNone.map(category => {
-            const tasks = this.tasks.filter(t => (t.category || '') === category.id);
+        // Check if this is initial render or search update
+        const isInitialRender = !container.querySelector('.search-bar');
+
+        // Filter tasks based on search query
+        let filteredTasks = this.tasks;
+        if (searchQuery.trim()) {
+            const query = searchQuery.toLowerCase();
+            filteredTasks = this.tasks.filter(task => {
+                const titleMatch = task.title.toLowerCase().includes(query);
+                const notesMatch = task.notes && task.notes.toLowerCase().includes(query);
+                return titleMatch || notesMatch;
+            });
+        }
+
+        // Build category sections HTML
+        const sectionsHtml = categoriesWithNone.map(category => {
+            const tasks = filteredTasks.filter(t => (t.category || '') === category.id);
             if (tasks.length === 0) return '';
 
             return `
@@ -539,20 +649,100 @@ class FirstThingsFirst {
             `;
         }).join('');
 
-        // Re-attach click listeners
-        document.querySelectorAll('.task-item').forEach(item => {
+        if (isInitialRender) {
+            // First render - create everything including search bar
+            const searchBarHtml = `
+                <div class="search-bar">
+                    <div class="search-input-wrapper">
+                        <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                        <input 
+                            type="text" 
+                            class="search-input" 
+                            id="categorySearchInput"
+                            placeholder="Search tasks by title or notes..." 
+                            value="${this.escapeHtml(searchQuery)}"
+                        >
+                        <button class="search-clear ${searchQuery ? 'visible' : ''}" id="clearCategorySearch">
+                            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="search-results-info" id="categorySearchResultsInfo"></div>
+                </div>
+                <div id="categorySections"></div>
+            `;
+
+            container.innerHTML = searchBarHtml;
+
+            // Attach search event listeners
+            const searchInput = document.getElementById('categorySearchInput');
+            const clearBtn = document.getElementById('clearCategorySearch');
+
+            if (searchInput) {
+                searchInput.addEventListener('input', (e) => {
+                    this.renderCategoryView(e.target.value);
+                });
+            }
+
+            if (clearBtn) {
+                clearBtn.addEventListener('click', () => {
+                    searchInput.value = '';
+                    searchInput.focus();
+                    this.renderCategoryView('');
+                });
+            }
+        }
+
+        // Update results info and clear button visibility
+        const resultsInfo = document.getElementById('categorySearchResultsInfo');
+        const clearBtn = document.getElementById('clearCategorySearch');
+
+        if (resultsInfo) {
+            resultsInfo.textContent = searchQuery ? `${filteredTasks.length} task${filteredTasks.length !== 1 ? 's' : ''} found` : '';
+        }
+
+        if (clearBtn) {
+            clearBtn.classList.toggle('visible', !!searchQuery);
+        }
+
+        // Update only the sections part
+        const sectionsContainer = document.getElementById('categorySections');
+        if (sectionsContainer) {
+            sectionsContainer.innerHTML = sectionsHtml;
+        }
+
+        // Re-attach task click listeners
+        document.querySelectorAll('#categoryView .task-item').forEach(item => {
             item.addEventListener('click', () => {
                 this.openTaskModal(item.dataset.taskId);
             });
         });
     }
 
-    renderProjectView() {
+    renderProjectView(searchQuery = '') {
         const container = document.getElementById('projectView');
         const projectsWithNone = [{ id: '', name: 'No Project' }, ...this.projects];
+        
+        // Check if this is initial render or search update
+        const isInitialRender = !container.querySelector('.search-bar');
+        
+        // Filter tasks based on search query
+        let filteredTasks = this.tasks;
+        if (searchQuery.trim()) {
+            const query = searchQuery.toLowerCase();
+            filteredTasks = this.tasks.filter(task => {
+                const titleMatch = task.title.toLowerCase().includes(query);
+                const notesMatch = task.notes && task.notes.toLowerCase().includes(query);
+                return titleMatch || notesMatch;
+            });
+        }
 
-        container.innerHTML = projectsWithNone.map(project => {
-            const tasks = this.tasks.filter(t => (t.project || '') === project.id);
+        // Build project sections HTML
+        const sectionsHtml = projectsWithNone.map(project => {
+            const tasks = filteredTasks.filter(t => (t.project || '') === project.id);
             if (tasks.length === 0) return '';
 
             return `
@@ -567,8 +757,73 @@ class FirstThingsFirst {
             `;
         }).join('');
 
-        // Re-attach click listeners
-        document.querySelectorAll('.task-item').forEach(item => {
+        if (isInitialRender) {
+            // First render - create everything including search bar
+            const searchBarHtml = `
+                <div class="search-bar">
+                    <div class="search-input-wrapper">
+                        <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                        <input 
+                            type="text" 
+                            class="search-input" 
+                            id="projectSearchInput"
+                            placeholder="Search tasks by title or notes..." 
+                            value="${this.escapeHtml(searchQuery)}"
+                        >
+                        <button class="search-clear ${searchQuery ? 'visible' : ''}" id="clearProjectSearch">
+                            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="search-results-info" id="searchResultsInfo"></div>
+                </div>
+                <div id="projectSections"></div>
+            `;
+            
+            container.innerHTML = searchBarHtml;
+            
+            // Attach search event listeners
+            const searchInput = document.getElementById('projectSearchInput');
+            const clearBtn = document.getElementById('clearProjectSearch');
+            
+            if (searchInput) {
+                searchInput.addEventListener('input', (e) => {
+                    this.renderProjectView(e.target.value);
+                });
+            }
+            
+            if (clearBtn) {
+                clearBtn.addEventListener('click', () => {
+                    searchInput.value = '';
+                    searchInput.focus();
+                    this.renderProjectView('');
+                });
+            }
+        }
+        
+        // Update results info and clear button visibility
+        const resultsInfo = document.getElementById('searchResultsInfo');
+        const clearBtn = document.getElementById('clearProjectSearch');
+        
+        if (resultsInfo) {
+            resultsInfo.textContent = searchQuery ? `${filteredTasks.length} task${filteredTasks.length !== 1 ? 's' : ''} found` : '';
+        }
+        
+        if (clearBtn) {
+            clearBtn.classList.toggle('visible', !!searchQuery);
+        }
+        
+        // Update only the sections part
+        const sectionsContainer = document.getElementById('projectSections');
+        if (sectionsContainer) {
+            sectionsContainer.innerHTML = sectionsHtml;
+        }
+
+        // Re-attach task click listeners
+        document.querySelectorAll('#projectView .task-item').forEach(item => {
             item.addEventListener('click', () => {
                 this.openTaskModal(item.dataset.taskId);
             });
@@ -589,14 +844,28 @@ class FirstThingsFirst {
     setView(view) {
         this.currentView = view;
 
+        // Sync URL hash without adding a history entry if the hash already matches
+        const targetHash = `#${view}`;
+        if (window.location.hash !== targetHash) {
+            history.pushState(null, '', targetHash);
+        }
+
         // Update button label
         const viewNames = { quadrant: 'Quadrant', category: 'Category', project: 'Project' };
         document.getElementById('viewLabel').textContent = `View: ${viewNames[view]}`;
 
         // Show/hide views
-        document.getElementById('matrixView').style.display = this.currentView === 'quadrant' ? 'grid' : 'none';
+        document.getElementById('matrixView').style.display = this.currentView === 'quadrant' ? 'flex' : 'none';
         document.getElementById('categoryView').classList.toggle('active', this.currentView === 'category');
         document.getElementById('projectView').classList.toggle('active', this.currentView === 'project');
+
+        // Clear list view containers so the search bar is re-created fresh each time
+        if (this.currentView !== 'category') {
+            document.getElementById('categoryView').innerHTML = '';
+        }
+        if (this.currentView !== 'project') {
+            document.getElementById('projectView').innerHTML = '';
+        }
 
         this.renderCurrentView();
     }
@@ -928,11 +1197,14 @@ class FirstThingsFirst {
         const categorySelect = document.getElementById('taskCategory');
         const projectSelect = document.getElementById('taskProject');
 
+        const sortedCategories = [...this.categories].sort((a, b) => a.name.localeCompare(b.name));
+        const sortedProjects = [...this.projects].sort((a, b) => a.name.localeCompare(b.name));
+
         categorySelect.innerHTML = '<option value="">None</option>' +
-            this.categories.map(c => `<option value="${c.id}">${this.escapeHtml(c.name)}</option>`).join('');
+            sortedCategories.map(c => `<option value="${c.id}">${this.escapeHtml(c.name)}</option>`).join('');
 
         projectSelect.innerHTML = '<option value="">None</option>' +
-            this.projects.map(p => `<option value="${p.id}">${this.escapeHtml(p.name)}</option>`).join('');
+            sortedProjects.map(p => `<option value="${p.id}">${this.escapeHtml(p.name)}</option>`).join('');
     }
 
     // Settings
@@ -969,7 +1241,33 @@ class FirstThingsFirst {
             modalBody.scrollTop = 0;
         }
         
+        // Fetch and display cache name from sw.js
+        this.updateCacheName();
+        
         modal.classList.add('active');
+    }
+
+    async updateCacheName() {
+        const cacheNameElement = document.getElementById('cacheName');
+        if (!cacheNameElement) return;
+        
+        try {
+            // Fetch sw.js and extract CACHE_NAME
+            const response = await fetch('sw.js');
+            const text = await response.text();
+            
+            // Extract CACHE_NAME value using regex
+            const match = text.match(/const\s+CACHE_NAME\s*=\s*['"]([^'"]+)['"]/);
+            
+            if (match && match[1]) {
+                cacheNameElement.textContent = match[1];
+            } else {
+                cacheNameElement.textContent = 'N/A';
+            }
+        } catch (error) {
+            console.error('Failed to fetch cache name:', error);
+            cacheNameElement.textContent = 'N/A';
+        }
     }
 
     closeAboutModal() {
@@ -1060,11 +1358,11 @@ class FirstThingsFirst {
         const themeIcon = document.getElementById('themeIconDropdown');
 
         if (this.settings.theme === 'dark') {
-            themeText.textContent = 'Switch to Light Theme';
+            themeText.textContent = 'Light Mode';
             // Sun icon
             themeIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>';
         } else {
-            themeText.textContent = 'Switch to Dark Theme';
+            themeText.textContent = 'Dark Mode';
             // Moon icon
             themeIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>';
         }

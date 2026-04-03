@@ -124,19 +124,18 @@
                         </svg>
                         Import Data
                     </button>
+                    <button class="dropdown-item" id="clearDataBtn" style="color: #ff3b30;">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                        Clear All Data
+                    </button>
                     <div class="dropdown-divider"></div>
                     <button class="dropdown-item" id="aboutBtn">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
                         About
-                    </button>
-                    <div class="dropdown-divider"></div>
-                    <button class="dropdown-item" id="clearDataBtn" style="color: #ff3b30;">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                        </svg>
-                        Clear All Data
                     </button>
                 </div>
             </div>
@@ -146,6 +145,8 @@
     <div class="container">
         <!-- Quadrant View -->
         <div class="matrix" id="matrixView">
+            <div id="quadrantSearchContainer"></div>
+            <div id="quadrantsGrid">
             <div class="quadrant quadrant-1" data-quadrant="1">
                 <div class="quadrant-header">
                     <div>
@@ -184,6 +185,7 @@
                     <div class="quadrant-label" id="q4Label">Consider This</div>
                 </div>
                 <div class="quadrant-items" id="q4Items"></div>
+            </div>
             </div>
         </div>
 
@@ -262,21 +264,18 @@
                         </div>
                     </div>
 
-                    <div class="form-group hidden" id="taskDatesGroup">
-                        <label>Task History</label>
-                        <div class="task-dates-grid">
-                            <div>
-                                <div class="date-field-label">Created</div>
-                                <input type="text" id="taskCreatedDate" readonly class="readonly-input">
-                            </div>
-                            <div>
-                                <div class="date-field-label">Modified</div>
-                                <input type="text" id="taskModifiedDate" readonly class="readonly-input">
-                            </div>
-                            <div id="taskCompletedDateContainer" class="hidden">
-                                <div class="date-field-label">Completed</div>
-                                <input type="text" id="taskCompletedDate" readonly class="readonly-input">
-                            </div>
+                    <div class="hidden" id="taskDatesGroup">
+                        <div class="form-group">
+                            <label>Created</label>
+                            <div id="taskCreatedDate" class="readonly-value"></div>
+                        </div>
+                        <div class="form-group">
+                            <label>Modified</label>
+                            <div id="taskModifiedDate" class="readonly-value"></div>
+                        </div>
+                        <div class="form-group hidden" id="taskCompletedDateContainer">
+                            <label>Completed</label>
+                            <div id="taskCompletedDate" class="readonly-value"></div>
                         </div>
                     </div>
                 </form>
@@ -452,7 +451,7 @@
                         <span id="appVersion">1.1.0</span>
                         
                         <strong>Cache:</strong>
-                        <span id="cacheName" style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem;">firstthingsfirst-v1.1</span>
+                        <span id="cacheName" style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem;">Loading...</span>
                         
                         <strong>GitHub:</strong>
                         <a href="https://github.com/psiborg/FirstThingsFirst" target="_blank" rel="noopener noreferrer" style="color: var(--accent); text-decoration: none;">
@@ -479,7 +478,7 @@
             </div>
             <div class="modal-footer">
                 <div class="modal-actions">
-                    <button class="btn btn-primary" id="closeAboutBtn" style="flex: 1;">Close</button>
+                    <button class="btn btn-primary" id="closeAboutBtn" style="flex: 1; justify-content: center;">Close</button>
                 </div>
             </div>
         </div>
