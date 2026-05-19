@@ -126,13 +126,9 @@ class FirstThingsFirst {
             });
         }
         
-        document.getElementById('listBtn').addEventListener('click', () => {
+        document.getElementById('manageBtn').addEventListener('click', () => {
             this.closeAllDropdowns();
-            this.openListsModal();
-        });
-        document.getElementById('settingsBtn').addEventListener('click', () => {
-            this.closeAllDropdowns();
-            this.openSettingsModal();
+            this.openManageModal('quadrants');
         });
         document.getElementById('exportBtn').addEventListener('click', () => {
             this.closeAllDropdowns();
@@ -163,10 +159,23 @@ class FirstThingsFirst {
         document.getElementById('deleteTaskBtn').addEventListener('click', () => this.deleteTask());
         document.getElementById('saveTaskBtn').addEventListener('click', (e) => this.saveTask(e));
 
-        // Lists Modal
-        document.getElementById('closeListsModal').addEventListener('click', () => this.closeListsModal());
+        // Manage Modal (consolidated: Quadrants, Categories, Projects)
+        document.getElementById('closeManageModal').addEventListener('click', () => this.closeManageModal());
+        document.getElementById('closeManageBtn').addEventListener('click', () => this.closeManageModal());
+        
+        // Tab switching
+        document.querySelectorAll('.modal-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabName = tab.dataset.tab;
+                this.switchManageTab(tabName);
+            });
+        });
+        
+        // Tab-specific buttons
         document.getElementById('addCategoryBtn').addEventListener('click', () => this.openListItemModal('category'));
         document.getElementById('addProjectBtn').addEventListener('click', () => this.openListItemModal('project'));
+        document.getElementById('resetSettingsBtn').addEventListener('click', () => this.resetSettings());
+        document.getElementById('saveSettingsBtn').addEventListener('click', () => this.saveSettings());
 
         // List Item Modal
         document.getElementById('closeListItemModal').addEventListener('click', () => this.closeListItemModal());
@@ -175,11 +184,6 @@ class FirstThingsFirst {
 
         // Color picker sync
         this.setupColorPickers();
-
-        // Settings Modal (modal-specific actions only)
-        document.getElementById('closeSettingsModal').addEventListener('click', () => this.closeSettingsModal());
-        document.getElementById('saveSettingsBtn').addEventListener('click', () => this.saveSettings());
-        document.getElementById('resetSettingsBtn').addEventListener('click', () => this.resetSettings());
 
         // About Modal
         document.getElementById('closeAboutModal').addEventListener('click', () => this.closeAboutModal());
@@ -1020,8 +1024,8 @@ class FirstThingsFirst {
     }
 
     // Lists Management
-    openListsModal() {
-        const modal = document.getElementById('listsModal');
+    openManageModal(tab = 'quadrants') {
+        const modal = document.getElementById('manageModal');
         const modalBody = modal.querySelector('.modal-body');
 
         // Scroll modal body to top
@@ -1030,12 +1034,58 @@ class FirstThingsFirst {
         }
 
         modal.classList.add('active');
-        this.renderCategoriesList();
-        this.renderProjectsList();
+        this.switchManageTab(tab);
+    }
+
+    closeManageModal() {
+        document.getElementById('manageModal').classList.remove('active');
+    }
+
+    switchManageTab(tabName) {
+        // Update tab buttons
+        document.querySelectorAll('.modal-tab').forEach(tab => {
+            tab.classList.toggle('active', tab.dataset.tab === tabName);
+        });
+
+        // Update tab content
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.remove('active');
+        });
+        document.getElementById(`${tabName}Tab`).classList.add('active');
+
+        // Update footer actions
+        const quadrantsActions = document.getElementById('quadrantsActions');
+        const listsActions = document.getElementById('listsActions');
+        
+        if (tabName === 'quadrants') {
+            quadrantsActions.style.display = 'flex';
+            listsActions.style.display = 'none';
+            // Load quadrant settings
+            for (let i = 1; i <= 4; i++) {
+                document.getElementById(`q${i}Color`).value = this.settings[`q${i}`].color;
+                document.getElementById(`q${i}ColorHex`).value = this.settings[`q${i}`].color;
+                document.getElementById(`q${i}LabelText`).value = this.settings[`q${i}`].label;
+            }
+        } else {
+            quadrantsActions.style.display = 'none';
+            listsActions.style.display = 'flex';
+            
+            // Render lists
+            if (tabName === 'categories') {
+                this.renderCategoriesList();
+            } else if (tabName === 'projects') {
+                this.renderProjectsList();
+            }
+        }
+    }
+
+    // Legacy function redirects for compatibility
+    openListsModal() {
+        this.openManageModal('categories');
     }
 
     closeListsModal() {
-        document.getElementById('listsModal').classList.remove('active');
+        this.closeManageModal();
     }
 
     renderCategoriesList() {
@@ -1284,27 +1334,13 @@ class FirstThingsFirst {
     }
 
     // Settings
+    // Legacy function redirects for compatibility
     openSettingsModal() {
-        const modal = document.getElementById('settingsModal');
-        const modalBody = modal.querySelector('.modal-body');
-
-        // Scroll modal body to top
-        if (modalBody) {
-            modalBody.scrollTop = 0;
-        }
-
-        modal.classList.add('active');
-
-        // Load current settings
-        for (let i = 1; i <= 4; i++) {
-            document.getElementById(`q${i}Color`).value = this.settings[`q${i}`].color;
-            document.getElementById(`q${i}ColorHex`).value = this.settings[`q${i}`].color;
-            document.getElementById(`q${i}LabelText`).value = this.settings[`q${i}`].label;
-        }
+        this.openManageModal('quadrants');
     }
 
     closeSettingsModal() {
-        document.getElementById('settingsModal').classList.remove('active');
+        this.closeManageModal();
     }
 
     // About Modal
@@ -1416,7 +1452,7 @@ class FirstThingsFirst {
 
     applyTheme() {
         // Remove all theme classes
-        document.body.classList.remove('theme-forest', 'theme-sunset', 'theme-dawn', 'theme-breeze');
+        document.body.classList.remove('theme-forest', 'theme-sunset', 'theme-dawn', 'theme-breeze', 'theme-spectrum');
         
         // Add the current theme class (ocean is default, no class needed)
         if (this.settings.theme === 'forest') {
@@ -1427,6 +1463,8 @@ class FirstThingsFirst {
             document.body.classList.add('theme-dawn');
         } else if (this.settings.theme === 'breeze') {
             document.body.classList.add('theme-breeze');
+        } else if (this.settings.theme === 'spectrum') {
+            document.body.classList.add('theme-spectrum');
         }
     }
 

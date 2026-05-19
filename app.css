@@ -76,6 +76,20 @@
             --q4-color: #5dace0; /* MR Cyan Tint 2 */
         }
 
+        /* Theme: Spectrum - Multi-color Vibrant - LIGHT */
+        body.theme-spectrum {
+            --bg-dark: #fafbfc;
+            --bg-darker: #ffffff;
+            --text-primary: #1a1a2e;
+            --text-secondary: #5a5a6e;
+            --border-color: #d5dce5;
+            --accent: #47c0db; /* MR Cyan Tint 1 */
+            --q1-color: #5dd3a7; /* MR Green Tint 2 - Bright green */
+            --q2-color: #d095f5; /* MR Purple Tint 1 - Bright purple */
+            --q3-color: #f5a76c; /* MR Orange Tint 1 - Bright orange */
+            --q4-color: #77c5e0; /* MR Cyan Tint 3 - Bright cyan */
+        }
+
 
 
 
@@ -133,6 +147,11 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
         }
 
+        body.theme-spectrum .header {
+            background: #f0f5fa;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
         .header-search {
             flex: 1;
             max-width: 500px;
@@ -161,7 +180,8 @@
 
         /* Light theme h1 color */
         body.theme-dawn .header h1,
-        body.theme-breeze .header h1 {
+        body.theme-breeze .header h1,
+        body.theme-spectrum .header h1 {
             color: #1a1a2e;
         }
 
@@ -339,17 +359,20 @@
 
         /* Light theme adjustments for select */
         body.theme-dawn .theme-select,
-        body.theme-breeze .theme-select {
+        body.theme-breeze .theme-select,
+        body.theme-spectrum .theme-select {
             background: rgba(0, 0, 0, 0.03);
         }
 
         body.theme-dawn .theme-select:hover,
-        body.theme-breeze .theme-select:hover {
+        body.theme-breeze .theme-select:hover,
+        body.theme-spectrum .theme-select:hover {
             background: rgba(0, 0, 0, 0.06);
         }
 
         body.theme-dawn .theme-select option,
-        body.theme-breeze .theme-select option {
+        body.theme-breeze .theme-select option,
+        body.theme-spectrum .theme-select option {
             background: #ffffff;
             color: #1a1a2e;
         }
@@ -695,6 +718,47 @@
             transform: rotate(90deg);
         }
 
+        /* Modal Tabs */
+        .modal-tabs {
+            display: flex;
+            background: var(--bg-darker);
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .modal-tab {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-bottom: 3px solid transparent;
+        }
+
+        .modal-tab:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .modal-tab.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+            background: rgba(35, 183, 215, 0.05);
+        }
+
+        /* Tab Content */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
         .form-group {
             margin-bottom: 1.25rem;
         }
@@ -970,6 +1034,7 @@
 
         .list-item-name {
             font-weight: 600;
+            font-size: 0.875rem;
             margin-bottom: 0.25rem;
         }
 

@@ -104,20 +104,15 @@
                             <option value="sunset">🌅 Sunset</option>
                             <option value="dawn">🌄 Dawn</option>
                             <option value="breeze">💨 Breeze</option>
+                            <option value="spectrum">🌈 Spectrum</option>
                         </select>
                     </div>
                     <div class="dropdown-divider"></div>
-                    <button class="dropdown-item" id="listBtn">
+                    <button class="dropdown-item" id="manageBtn">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
                         </svg>
-                        Manage Lists
-                    </button>
-                    <button class="dropdown-item" id="settingsBtn">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/>
-                        </svg>
-                        Manage Quadrants
+                        Manage
                     </button>
                     <div class="dropdown-divider"></div>
                     <button class="dropdown-item" id="exportBtn">
@@ -299,33 +294,91 @@
     </div>
 
     <!-- Lists Management Modal -->
-    <div class="modal" id="listsModal">
-        <div class="modal-content" style="max-width: 480px;">
+    <!-- Manage Modal (Consolidated: Quadrants, Categories, Projects) -->
+    <div class="modal" id="manageModal">
+        <div class="modal-content" style="max-width: 540px;">
             <div class="modal-header">
-                <h2>Manage Lists</h2>
-                <button class="close-btn" id="closeListsModal">&times;</button>
+                <h2>Manage</h2>
+                <button class="close-btn" id="closeManageModal">&times;</button>
             </div>
+            
+            <!-- Tab Navigation -->
+            <div class="modal-tabs">
+                <button class="modal-tab active" data-tab="quadrants">Quadrants</button>
+                <button class="modal-tab" data-tab="categories">Categories</button>
+                <button class="modal-tab" data-tab="projects">Projects</button>
+            </div>
+            
             <div class="modal-body">
-                <div style="margin-bottom: 1.25rem;">
-                    <h3 style="margin: 0 0 0.5rem 0; font-size: 0.95rem; color: var(--text-primary);">Categories</h3>
+                <!-- Quadrants Tab -->
+                <div class="tab-content active" id="quadrantsTab">
+                    <div class="form-group" style="margin-bottom: 0.85rem;">
+                        <label style="font-size: 0.85rem; margin-bottom: 0.35rem; text-transform: none;">Q1 (Urgent & Important)</label>
+                        <div style="display: flex; gap: 0.5rem; align-items: center;">
+                            <input type="color" id="q1Color" value="#AEE7B1" style="width: 42px; height: 32px;">
+                            <input type="text" id="q1ColorHex" value="#AEE7B1" style="width: 85px; font-size: 0.8rem; padding: 0.4rem 0.5rem;">
+                            <input type="text" id="q1LabelText" value="Do This" class="q-label-input" placeholder="Label" style="flex: 1; font-size: 0.85rem; padding: 0.4rem 0.6rem;">
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 0.85rem;">
+                        <label style="font-size: 0.85rem; margin-bottom: 0.35rem; text-transform: none;">Q2 (Less Urgent & Important)</label>
+                        <div style="display: flex; gap: 0.5rem; align-items: center;">
+                            <input type="color" id="q2Color" value="#ABBEE1" style="width: 42px; height: 32px;">
+                            <input type="text" id="q2ColorHex" value="#ABBEE1" style="width: 85px; font-size: 0.8rem; padding: 0.4rem 0.5rem;">
+                            <input type="text" id="q2LabelText" value="Schedule This" class="q-label-input" placeholder="Label" style="flex: 1; font-size: 0.85rem; padding: 0.4rem 0.6rem;">
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 0.85rem;">
+                        <label style="font-size: 0.85rem; margin-bottom: 0.35rem; text-transform: none;">Q3 (Urgent & Less Important)</label>
+                        <div style="display: flex; gap: 0.5rem; align-items: center;">
+                            <input type="color" id="q3Color" value="#BCB5F0" style="width: 42px; height: 32px;">
+                            <input type="text" id="q3ColorHex" value="#BCB5F0" style="width: 85px; font-size: 0.8rem; padding: 0.4rem 0.5rem;">
+                            <input type="text" id="q3LabelText" value="Assign This" class="q-label-input" placeholder="Label" style="flex: 1; font-size: 0.85rem; padding: 0.4rem 0.6rem;">
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label style="font-size: 0.85rem; margin-bottom: 0.35rem; text-transform: none;">Q4 (Less Urgent & Less Important)</label>
+                        <div style="display: flex; gap: 0.5rem; align-items: center;">
+                            <input type="color" id="q4Color" value="#F5D26C" style="width: 42px; height: 32px;">
+                            <input type="text" id="q4ColorHex" value="#F5D26C" style="width: 85px; font-size: 0.8rem; padding: 0.4rem 0.5rem;">
+                            <input type="text" id="q4LabelText" value="Consider This" class="q-label-input" placeholder="Label" style="flex: 1; font-size: 0.85rem; padding: 0.4rem 0.6rem;">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Categories Tab -->
+                <div class="tab-content" id="categoriesTab">
                     <div id="categoriesList" class="list-items"></div>
-                    <button class="btn btn-primary full-width-btn" id="addCategoryBtn" style="margin-top: 0.6rem; padding: 0.5rem 0.75rem; font-size: 0.85rem;">
+                    <button class="btn btn-primary full-width-btn" id="addCategoryBtn" style="margin-top: 0.75rem; padding: 0.5rem 0.75rem; font-size: 0.85rem;">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                         </svg>
                         Add Category
                     </button>
                 </div>
-
-                <div>
-                    <h3 style="margin: 0 0 0.5rem 0; font-size: 0.95rem; color: var(--text-primary);">Projects</h3>
+                
+                <!-- Projects Tab -->
+                <div class="tab-content" id="projectsTab">
                     <div id="projectsList" class="list-items"></div>
-                    <button class="btn btn-primary full-width-btn" id="addProjectBtn" style="margin-top: 0.6rem; padding: 0.5rem 0.75rem; font-size: 0.85rem;">
+                    <button class="btn btn-primary full-width-btn" id="addProjectBtn" style="margin-top: 0.75rem; padding: 0.5rem 0.75rem; font-size: 0.85rem;">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                         </svg>
                         Add Project
                     </button>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <div class="modal-actions" id="quadrantsActions">
+                    <button class="btn" id="resetSettingsBtn" style="padding: 0.5rem 0.85rem; font-size: 0.85rem;">Reset to Defaults</button>
+                    <button class="btn btn-primary" id="saveSettingsBtn" style="padding: 0.5rem 0.85rem; font-size: 0.85rem;">Save Settings</button>
+                </div>
+                <div class="modal-actions" id="listsActions" style="display: none;">
+                    <button class="btn btn-primary" id="closeManageBtn" style="flex: 1; justify-content: center; padding: 0.5rem 0.85rem; font-size: 0.85rem;">Close</button>
                 </div>
             </div>
         </div>
@@ -371,59 +424,6 @@
                 <div class="modal-actions">
                     <button type="button" class="btn" id="cancelListItemBtn">Cancel</button>
                     <button type="submit" class="btn btn-primary" id="saveListItemBtn">Save</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Settings Modal -->
-    <div class="modal" id="settingsModal">
-        <div class="modal-content" style="max-width: 520px;">
-            <div class="modal-header">
-                <h2>Manage Quadrants</h2>
-                <button class="close-btn" id="closeSettingsModal">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group" style="margin-bottom: 0.85rem;">
-                    <label style="font-size: 0.85rem; margin-bottom: 0.35rem; text-transform: none;">Q1 (Urgent & Important)</label>
-                    <div style="display: flex; gap: 0.5rem; align-items: center;">
-                        <input type="color" id="q1Color" value="#AEE7B1" style="width: 42px; height: 32px;">
-                        <input type="text" id="q1ColorHex" value="#AEE7B1" style="width: 85px; font-size: 0.8rem; padding: 0.4rem 0.5rem;">
-                        <input type="text" id="q1LabelText" value="Do This" class="q-label-input" placeholder="Label" style="flex: 1; font-size: 0.85rem; padding: 0.4rem 0.6rem;">
-                    </div>
-                </div>
-
-                <div class="form-group" style="margin-bottom: 0.85rem;">
-                    <label style="font-size: 0.85rem; margin-bottom: 0.35rem; text-transform: none;">Q2 (Less Urgent & Important)</label>
-                    <div style="display: flex; gap: 0.5rem; align-items: center;">
-                        <input type="color" id="q2Color" value="#ABBEE1" style="width: 42px; height: 32px;">
-                        <input type="text" id="q2ColorHex" value="#ABBEE1" style="width: 85px; font-size: 0.8rem; padding: 0.4rem 0.5rem;">
-                        <input type="text" id="q2LabelText" value="Schedule This" class="q-label-input" placeholder="Label" style="flex: 1; font-size: 0.85rem; padding: 0.4rem 0.6rem;">
-                    </div>
-                </div>
-
-                <div class="form-group" style="margin-bottom: 0.85rem;">
-                    <label style="font-size: 0.85rem; margin-bottom: 0.35rem; text-transform: none;">Q3 (Urgent & Less Important)</label>
-                    <div style="display: flex; gap: 0.5rem; align-items: center;">
-                        <input type="color" id="q3Color" value="#BCB5F0" style="width: 42px; height: 32px;">
-                        <input type="text" id="q3ColorHex" value="#BCB5F0" style="width: 85px; font-size: 0.8rem; padding: 0.4rem 0.5rem;">
-                        <input type="text" id="q3LabelText" value="Assign This" class="q-label-input" placeholder="Label" style="flex: 1; font-size: 0.85rem; padding: 0.4rem 0.6rem;">
-                    </div>
-                </div>
-
-                <div class="form-group" style="margin-bottom: 0;">
-                    <label style="font-size: 0.85rem; margin-bottom: 0.35rem; text-transform: none;">Q4 (Less Urgent & Less Important)</label>
-                    <div style="display: flex; gap: 0.5rem; align-items: center;">
-                        <input type="color" id="q4Color" value="#F5D26C" style="width: 42px; height: 32px;">
-                        <input type="text" id="q4ColorHex" value="#F5D26C" style="width: 85px; font-size: 0.8rem; padding: 0.4rem 0.5rem;">
-                        <input type="text" id="q4LabelText" value="Consider This" class="q-label-input" placeholder="Label" style="flex: 1; font-size: 0.85rem; padding: 0.4rem 0.6rem;">
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <div class="modal-actions">
-                    <button class="btn" id="resetSettingsBtn" style="padding: 0.5rem 0.85rem; font-size: 0.85rem;">Reset to Defaults</button>
-                    <button class="btn btn-primary" id="saveSettingsBtn" style="padding: 0.5rem 0.85rem; font-size: 0.85rem;">Save Settings</button>
                 </div>
             </div>
         </div>
