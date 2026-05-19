@@ -1,7 +1,7 @@
 // Service Worker for FirstThingsFirst PWA
 // Network-first caching strategy with relative paths
 
-const CACHE_NAME = 'firstthingsfirst-v1.20';
+const CACHE_NAME = 'firstthingsfirst-v1.21';
 
 // Get the base path from the service worker registration scope
 const getBasePath = () => {
