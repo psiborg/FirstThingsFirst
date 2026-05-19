@@ -5,37 +5,38 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#1a1a2e">
     <title>FirstThingsFirst - Priority Matrix</title>
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="icon" type="image/x-icon" href="./favicon.ico">
     <!-- Uncomment the line below if serving over HTTP/HTTPS for PWA support -->
-    <!-- <link rel="manifest" href="manifest.json"> -->
-    <link rel="stylesheet" href="app.css">
+    <!-- <link rel="manifest" href="./manifest.json"> -->
+    <link rel="stylesheet" href="./app.css">
 </head>
 <body>
     <div class="header">
         <div class="header-brand">
-            <svg class="logo" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <!-- Q1 - Top Left - Green -->
-                <rect x="5" y="5" width="40" height="40" rx="6" fill="#AEE7B1" opacity="0.9"/>
-                <text x="25" y="33" font-family="Arial" font-weight="bold" font-size="20" text-anchor="middle" fill="#0a0a15">1</text>
-
-                <!-- Q2 - Top Right - Blue -->
-                <rect x="55" y="5" width="40" height="40" rx="6" fill="#ABBEE1" opacity="0.9"/>
-                <text x="75" y="33" font-family="Arial" font-weight="bold" font-size="20" text-anchor="middle" fill="#0a0a15">2</text>
-
-                <!-- Q3 - Bottom Left - Purple -->
-                <rect x="5" y="55" width="40" height="40" rx="6" fill="#BCB5F0" opacity="0.9"/>
-                <text x="25" y="83" font-family="Arial" font-weight="bold" font-size="20" text-anchor="middle" fill="#0a0a15">3</text>
-
-                <!-- Q4 - Bottom Right - Yellow -->
-                <rect x="55" y="55" width="40" height="40" rx="6" fill="#F5D26C" opacity="0.9"/>
-                <text x="75" y="83" font-family="Arial" font-weight="bold" font-size="20" text-anchor="middle" fill="#0a0a15">4</text>
-
-                <!-- Center cross lines -->
-                <line x1="50" y1="10" x2="50" y2="90" stroke="#e8e8f0" stroke-width="2" opacity="0.3"/>
-                <line x1="10" y1="50" x2="90" y2="50" stroke="#e8e8f0" stroke-width="2" opacity="0.3"/>
-            </svg>
+            <img src="./icon-192.png" alt="FirstThingsFirst" class="logo">
             <h1>FirstThingsFirst</h1>
         </div>
+        
+        <!-- Global Search Bar in Header -->
+        <div class="header-search" id="headerSearch" style="display: none;">
+            <div class="search-input-wrapper">
+                <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+                <input 
+                    type="text" 
+                    class="search-input" 
+                    id="globalSearchInput"
+                    placeholder="Search tasks..." 
+                >
+                <button class="search-clear" id="globalSearchClear">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        
         <div class="toolbar">
             <button class="btn btn-primary" id="addBtn">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -92,12 +93,19 @@
                     </svg>
                 </button>
                 <div class="dropdown-content" id="settingsDropdown">
-                    <button class="dropdown-item" id="themeToggleBtn">
-                        <svg id="themeIconDropdown" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+                    <!-- Theme Selector -->
+                    <div class="dropdown-item theme-selector">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/>
                         </svg>
-                        <span id="themeTextDropdown">Switch to Light Theme</span>
-                    </button>
+                        <select id="themeSelector" class="theme-select">
+                            <option value="ocean">🌊 Ocean</option>
+                            <option value="forest">🌲 Forest</option>
+                            <option value="sunset">🌅 Sunset</option>
+                            <option value="dawn">🌄 Dawn</option>
+                            <option value="breeze">💨 Breeze</option>
+                        </select>
+                    </div>
                     <div class="dropdown-divider"></div>
                     <button class="dropdown-item" id="listBtn">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -292,17 +300,17 @@
 
     <!-- Lists Management Modal -->
     <div class="modal" id="listsModal">
-        <div class="modal-content">
+        <div class="modal-content" style="max-width: 480px;">
             <div class="modal-header">
                 <h2>Manage Lists</h2>
                 <button class="close-btn" id="closeListsModal">&times;</button>
             </div>
             <div class="modal-body">
-                <div class="lists-section-spacing">
-                    <h3 class="lists-section-title" style="margin-bottom: 1rem;">Categories</h3>
+                <div style="margin-bottom: 1.25rem;">
+                    <h3 style="margin: 0 0 0.5rem 0; font-size: 0.95rem; color: var(--text-primary);">Categories</h3>
                     <div id="categoriesList" class="list-items"></div>
-                    <button class="btn btn-primary full-width-btn" id="addCategoryBtn" style="margin-top: 1rem; margin-bottom: 1rem;">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="small-icon">
+                    <button class="btn btn-primary full-width-btn" id="addCategoryBtn" style="margin-top: 0.6rem; padding: 0.5rem 0.75rem; font-size: 0.85rem;">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                         </svg>
                         Add Category
@@ -310,10 +318,10 @@
                 </div>
 
                 <div>
-                    <h3 class="lists-section-title" style="margin-bottom: 1rem;">Projects</h3>
+                    <h3 style="margin: 0 0 0.5rem 0; font-size: 0.95rem; color: var(--text-primary);">Projects</h3>
                     <div id="projectsList" class="list-items"></div>
-                    <button class="btn btn-primary full-width-btn" id="addProjectBtn" style="margin-top: 1rem; margin-bottom: 1rem;">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="small-icon">
+                    <button class="btn btn-primary full-width-btn" id="addProjectBtn" style="margin-top: 0.6rem; padding: 0.5rem 0.75rem; font-size: 0.85rem;">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                         </svg>
                         Add Project
@@ -370,52 +378,52 @@
 
     <!-- Settings Modal -->
     <div class="modal" id="settingsModal">
-        <div class="modal-content">
+        <div class="modal-content" style="max-width: 520px;">
             <div class="modal-header">
                 <h2>Manage Quadrants</h2>
                 <button class="close-btn" id="closeSettingsModal">&times;</button>
             </div>
             <div class="modal-body">
-                <div class="form-group">
-                    <label>Quadrant 1 (Urgent & Important)</label>
-                    <div class="color-picker-group">
-                        <input type="color" id="q1Color" value="#AEE7B1">
-                        <input type="text" id="q1ColorHex" value="#AEE7B1">
+                <div class="form-group" style="margin-bottom: 0.85rem;">
+                    <label style="font-size: 0.85rem; margin-bottom: 0.35rem; text-transform: none;">Q1 (Urgent & Important)</label>
+                    <div style="display: flex; gap: 0.5rem; align-items: center;">
+                        <input type="color" id="q1Color" value="#AEE7B1" style="width: 42px; height: 32px;">
+                        <input type="text" id="q1ColorHex" value="#AEE7B1" style="width: 85px; font-size: 0.8rem; padding: 0.4rem 0.5rem;">
+                        <input type="text" id="q1LabelText" value="Do This" class="q-label-input" placeholder="Label" style="flex: 1; font-size: 0.85rem; padding: 0.4rem 0.6rem;">
                     </div>
-                    <input type="text" id="q1LabelText" value="Do This" class="q-label-input" placeholder="Label">
                 </div>
 
-                <div class="form-group">
-                    <label>Quadrant 2 (Less Urgent & Important)</label>
-                    <div class="color-picker-group">
-                        <input type="color" id="q2Color" value="#ABBEE1">
-                        <input type="text" id="q2ColorHex" value="#ABBEE1">
+                <div class="form-group" style="margin-bottom: 0.85rem;">
+                    <label style="font-size: 0.85rem; margin-bottom: 0.35rem; text-transform: none;">Q2 (Less Urgent & Important)</label>
+                    <div style="display: flex; gap: 0.5rem; align-items: center;">
+                        <input type="color" id="q2Color" value="#ABBEE1" style="width: 42px; height: 32px;">
+                        <input type="text" id="q2ColorHex" value="#ABBEE1" style="width: 85px; font-size: 0.8rem; padding: 0.4rem 0.5rem;">
+                        <input type="text" id="q2LabelText" value="Schedule This" class="q-label-input" placeholder="Label" style="flex: 1; font-size: 0.85rem; padding: 0.4rem 0.6rem;">
                     </div>
-                    <input type="text" id="q2LabelText" value="Schedule This" class="q-label-input" placeholder="Label">
                 </div>
 
-                <div class="form-group">
-                    <label>Quadrant 3 (Urgent & Less Important)</label>
-                    <div class="color-picker-group">
-                        <input type="color" id="q3Color" value="#BCB5F0">
-                        <input type="text" id="q3ColorHex" value="#BCB5F0">
+                <div class="form-group" style="margin-bottom: 0.85rem;">
+                    <label style="font-size: 0.85rem; margin-bottom: 0.35rem; text-transform: none;">Q3 (Urgent & Less Important)</label>
+                    <div style="display: flex; gap: 0.5rem; align-items: center;">
+                        <input type="color" id="q3Color" value="#BCB5F0" style="width: 42px; height: 32px;">
+                        <input type="text" id="q3ColorHex" value="#BCB5F0" style="width: 85px; font-size: 0.8rem; padding: 0.4rem 0.5rem;">
+                        <input type="text" id="q3LabelText" value="Assign This" class="q-label-input" placeholder="Label" style="flex: 1; font-size: 0.85rem; padding: 0.4rem 0.6rem;">
                     </div>
-                    <input type="text" id="q3LabelText" value="Assign This" class="q-label-input" placeholder="Label">
                 </div>
 
-                <div class="form-group">
-                    <label>Quadrant 4 (Less Urgent & Less Important)</label>
-                    <div class="color-picker-group">
-                        <input type="color" id="q4Color" value="#F5D26C">
-                        <input type="text" id="q4ColorHex" value="#F5D26C">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label style="font-size: 0.85rem; margin-bottom: 0.35rem; text-transform: none;">Q4 (Less Urgent & Less Important)</label>
+                    <div style="display: flex; gap: 0.5rem; align-items: center;">
+                        <input type="color" id="q4Color" value="#F5D26C" style="width: 42px; height: 32px;">
+                        <input type="text" id="q4ColorHex" value="#F5D26C" style="width: 85px; font-size: 0.8rem; padding: 0.4rem 0.5rem;">
+                        <input type="text" id="q4LabelText" value="Consider This" class="q-label-input" placeholder="Label" style="flex: 1; font-size: 0.85rem; padding: 0.4rem 0.6rem;">
                     </div>
-                    <input type="text" id="q4LabelText" value="Consider This" class="q-label-input" placeholder="Label">
                 </div>
             </div>
             <div class="modal-footer">
                 <div class="modal-actions">
-                    <button class="btn" id="resetSettingsBtn">Reset to Defaults</button>
-                    <button class="btn btn-primary" id="saveSettingsBtn">Save Settings</button>
+                    <button class="btn" id="resetSettingsBtn" style="padding: 0.5rem 0.85rem; font-size: 0.85rem;">Reset to Defaults</button>
+                    <button class="btn btn-primary" id="saveSettingsBtn" style="padding: 0.5rem 0.85rem; font-size: 0.85rem;">Save Settings</button>
                 </div>
             </div>
         </div>
@@ -423,56 +431,52 @@
 
     <!-- About Modal -->
     <div class="modal" id="aboutModal">
-        <div class="modal-content">
+        <div class="modal-content" style="max-width: 480px;">
             <div class="modal-header">
-                <h2>About FirstThingsFirst</h2>
+                <h2>About</h2>
                 <button class="close-btn" id="closeAboutModal">&times;</button>
             </div>
-            <div class="modal-body" style="text-align: center;">
-                <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 100px; height: 100px; margin: 0 auto 1.5rem;">
-                    <rect x="5" y="5" width="40" height="40" rx="6" fill="#AEE7B1" opacity="0.9"/>
-                    <text x="25" y="33" font-family="Arial" font-weight="bold" font-size="20" text-anchor="middle" fill="#0a0a15">1</text>
-                    <rect x="55" y="5" width="40" height="40" rx="6" fill="#ABBEE1" opacity="0.9"/>
-                    <text x="75" y="33" font-family="Arial" font-weight="bold" font-size="20" text-anchor="middle" fill="#0a0a15">2</text>
-                    <rect x="5" y="55" width="40" height="40" rx="6" fill="#BCB5F0" opacity="0.9"/>
-                    <text x="25" y="83" font-family="Arial" font-weight="bold" font-size="20" text-anchor="middle" fill="#0a0a15">3</text>
-                    <rect x="55" y="55" width="40" height="40" rx="6" fill="#F5D26C" opacity="0.9"/>
-                    <text x="75" y="83" font-family="Arial" font-weight="bold" font-size="20" text-anchor="middle" fill="#0a0a15">4</text>
-                    <line x1="50" y1="10" x2="50" y2="90" stroke="#e8e8f0" stroke-width="2" opacity="0.3"/>
-                    <line x1="10" y1="50" x2="90" y2="50" stroke="#e8e8f0" stroke-width="2" opacity="0.3"/>
-                </svg>
+            <div class="modal-body">
+                <!-- Compact header with icon and title side-by-side -->
+                <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                    <img src="./icon-192.png" alt="FirstThingsFirst" style="width: 60px; height: 60px; flex-shrink: 0;">
+                    <div style="flex: 1;">
+                        <h3 style="margin: 0 0 0.25rem 0; font-size: 1.2rem;">FirstThingsFirst</h3>
+                        <p style="color: var(--text-secondary); margin: 0; font-size: 0.85rem;">Priority Matrix Task Manager</p>
+                    </div>
+                </div>
                 
-                <h3 style="margin-bottom: 0.5rem; font-size: 1.5rem;">FirstThingsFirst</h3>
-                <p style="color: var(--text-secondary); margin-bottom: 1rem;">Priority Matrix Task Manager</p>
-                
-                <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); border-radius: 10px; padding: 1rem; margin-bottom: 1.5rem; text-align: left;">
-                    <div style="display: grid; grid-template-columns: auto 1fr; gap: 0.75rem 1rem; font-size: 0.9rem;">
+                <!-- Compact info grid -->
+                <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.75rem; margin-bottom: 1rem;">
+                    <div style="display: grid; grid-template-columns: auto 1fr; gap: 0.5rem 0.75rem; font-size: 0.85rem;">
                         <strong>Version:</strong>
                         <span id="appVersion">1.1.0</span>
                         
                         <strong>Cache:</strong>
-                        <span id="cacheName" style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem;">Loading...</span>
+                        <span id="cacheName" style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;">Loading...</span>
                         
                         <strong>GitHub:</strong>
-                        <a href="https://github.com/psiborg/FirstThingsFirst" target="_blank" rel="noopener noreferrer" style="color: var(--accent); text-decoration: none;">
+                        <a href="https://github.com/psiborg/FirstThingsFirst" target="_blank" rel="noopener noreferrer" style="color: var(--accent); text-decoration: none; font-size: 0.85rem;">
                             psiborg/FirstThingsFirst
-                            <svg style="width: 14px; height: 14px; display: inline; vertical-align: middle; margin-left: 4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg style="width: 12px; height: 12px; display: inline; vertical-align: middle; margin-left: 2px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
                             </svg>
                         </a>
                     </div>
                 </div>
                 
-                <div style="text-align: left;">
-                    <h4 style="margin-bottom: 0.75rem; color: var(--text-primary);">Key Features</h4>
-                    <ul style="list-style: none; padding: 0; margin: 0; color: var(--text-secondary); font-size: 0.9rem; line-height: 1.8;">
-                        <li>📊 Eisenhower Matrix prioritization</li>
-                        <li>🎨 Customizable quadrants, categories & projects</li>
-                        <li>🔄 Drag & drop task management</li>
-                        <li>📅 Due date tracking & reminders</li>
-                        <li>💾 Local storage with export/import</li>
-                        <li>🌓 Light & dark themes</li>
-                        <li>📱 Progressive Web App (offline support)</li>
+                <!-- Compact features list -->
+                <div>
+                    <h4 style="margin: 0 0 0.5rem 0; font-size: 0.95rem; color: var(--text-primary);">Features</h4>
+                    <ul style="list-style: none; padding: 0; margin: 0; color: var(--text-secondary); font-size: 0.85rem; line-height: 1.6; display: grid; grid-template-columns: 1fr 1fr; gap: 0.35rem;">
+                        <li>📊 Matrix prioritization</li>
+                        <li>🎨 Customizable</li>
+                        <li>🔄 Drag & drop</li>
+                        <li>📅 Due dates</li>
+                        <li>💾 Export/Import</li>
+                        <li>🌈 5 Themes</li>
+                        <li>📱 PWA support</li>
+                        <li>🔍 Search tasks</li>
                     </ul>
                 </div>
             </div>
@@ -484,6 +488,6 @@
         </div>
     </div>
 
-    <script src="app.js"></script>
+    <script src="./app.js"></script>
 </body>
 </html>

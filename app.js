@@ -10,7 +10,7 @@ class FirstThingsFirst {
             q2: { color: '#ABBEE1', label: 'Schedule This' },
             q3: { color: '#BCB5F0', label: 'Delegate This' },
             q4: { color: '#F5D26C', label: 'Consider This' },
-            theme: 'dark'
+            theme: 'ocean'
         };
         this.currentView = 'quadrant';
         this.editingTaskId = null;
@@ -22,7 +22,6 @@ class FirstThingsFirst {
         this.loadData();
         this.setupEventListeners();
         this.applyTheme();
-        this.updateThemeDropdownButton();
         this.applySettings();
         this.updateCategoryProjectSelects();
 
@@ -101,10 +100,32 @@ class FirstThingsFirst {
             e.stopPropagation();
             this.toggleDropdown('settingsDropdown');
         });
-        document.getElementById('themeToggleBtn').addEventListener('click', () => {
-            this.toggleTheme();
-            this.updateThemeDropdownButton();
-        });
+        // Theme selector
+        const themeSelector = document.getElementById('themeSelector');
+        const themeSelectorContainer = themeSelector?.closest('.theme-selector');
+        
+        if (themeSelector) {
+            themeSelector.value = this.settings.theme || 'ocean';
+            
+            // Prevent dropdown from closing when clicking the container or select
+            if (themeSelectorContainer) {
+                themeSelectorContainer.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                });
+            }
+            
+            themeSelector.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+            
+            // Handle theme change
+            themeSelector.addEventListener('change', (e) => {
+                this.settings.theme = e.target.value;
+                this.applyTheme();
+                this.saveData();
+            });
+        }
+        
         document.getElementById('listBtn').addEventListener('click', () => {
             this.closeAllDropdowns();
             this.openListsModal();
@@ -511,8 +532,23 @@ class FirstThingsFirst {
         const category = this.categories.find(c => c.id === task.category);
         const project = this.projects.find(p => p.id === task.project);
 
+        let tagsHtml = '';
         let metaHtml = '';
 
+        // Tags that go inline with title (category, project, recurring)
+        if (category) {
+            tagsHtml += `<span class="task-tag" style="background: ${category.color}22; color: ${category.color}; border: 1px solid ${category.color}44;">${category.name}</span>`;
+        }
+
+        if (project) {
+            tagsHtml += `<span class="task-tag" style="background: ${project.color}22; color: ${project.color}; border: 1px solid ${project.color}44;">${project.name}</span>`;
+        }
+
+        if (task.recurring) {
+            tagsHtml += `<span class="task-tag" style="background: rgba(108, 99, 255, 0.15); color: #6c63ff; border: 1px solid rgba(108, 99, 255, 0.3);">↻</span>`;
+        }
+
+        // Due date stays in task-meta (below title)
         if (task.dueDate) {
             // Parse date in local timezone to avoid off-by-one errors
             const [year, month, day] = task.dueDate.split('-').map(Number);
@@ -531,23 +567,14 @@ class FirstThingsFirst {
             </span>`;
         }
 
-        if (category) {
-            metaHtml += `<span class="task-tag" style="background: ${category.color}22; color: ${category.color}; border: 1px solid ${category.color}44;">${category.name}</span>`;
-        }
-
-        if (project) {
-            metaHtml += `<span class="task-tag" style="background: ${project.color}22; color: ${project.color}; border: 1px solid ${project.color}44;">${project.name}</span>`;
-        }
-
-        if (task.recurring) {
-            metaHtml += `<span class="task-tag" style="background: rgba(108, 99, 255, 0.15); color: #6c63ff; border: 1px solid rgba(108, 99, 255, 0.3);">↻ Recurring</span>`;
-        }
-
         return `
             <div class="task-item ${task.completed ? 'completed' : ''}"
                  data-task-id="${task.id}"
                  draggable="true">
-                <div class="task-title">${this.escapeHtml(task.title)}</div>
+                <div class="task-item-header">
+                    <div class="task-title">${this.escapeHtml(task.title)}</div>
+                    ${tagsHtml ? `<div class="task-tags-inline">${tagsHtml}</div>` : ''}
+                </div>
                 ${metaHtml ? `<div class="task-meta">${metaHtml}</div>` : ''}
             </div>
         `;
@@ -557,8 +584,31 @@ class FirstThingsFirst {
         const category = this.categories.find(c => c.id === task.category);
         const project = this.projects.find(p => p.id === task.project);
 
+        let tagsHtml = '';
         let metaHtml = '';
 
+        // Tags that go inline with title (Urgent/Important, category/project, recurring)
+        if (task.urgent) {
+            tagsHtml += `<span class="task-tag" style="background: rgba(255, 59, 48, 0.15); color: #ff3b30; border: 1px solid rgba(255, 59, 48, 0.3);">⚡</span>`;
+        }
+
+        if (task.important) {
+            tagsHtml += `<span class="task-tag" style="background: rgba(255, 149, 0, 0.15); color: #ff9500; border: 1px solid rgba(255, 149, 0, 0.3);">★</span>`;
+        }
+
+        // In category view, show project tag (if exists)
+        // In project view, show category tag (if exists)
+        if (viewType === 'category' && project) {
+            tagsHtml += `<span class="task-tag" style="background: ${project.color}22; color: ${project.color}; border: 1px solid ${project.color}44;">${project.name}</span>`;
+        } else if (viewType === 'project' && category) {
+            tagsHtml += `<span class="task-tag" style="background: ${category.color}22; color: ${category.color}; border: 1px solid ${category.color}44;">${category.name}</span>`;
+        }
+
+        if (task.recurring) {
+            tagsHtml += `<span class="task-tag" style="background: rgba(108, 99, 255, 0.15); color: #6c63ff; border: 1px solid rgba(108, 99, 255, 0.3);">↻</span>`;
+        }
+
+        // Due date stays in task-meta (below title)
         if (task.dueDate) {
             // Parse date in local timezone to avoid off-by-one errors
             const [year, month, day] = task.dueDate.split('-').map(Number);
@@ -577,28 +627,7 @@ class FirstThingsFirst {
             </span>`;
         }
 
-        // Show Urgent/Important tags in category and project views
-        if (task.urgent) {
-            metaHtml += `<span class="task-tag" style="background: rgba(255, 59, 48, 0.15); color: #ff3b30; border: 1px solid rgba(255, 59, 48, 0.3);">⚡ Urgent</span>`;
-        }
-
-        if (task.important) {
-            metaHtml += `<span class="task-tag" style="background: rgba(255, 149, 0, 0.15); color: #ff9500; border: 1px solid rgba(255, 149, 0, 0.3);">★ Important</span>`;
-        }
-
-        // In category view, show project tag (if exists)
-        // In project view, show category tag (if exists)
-        if (viewType === 'category' && project) {
-            metaHtml += `<span class="task-tag" style="background: ${project.color}22; color: ${project.color}; border: 1px solid ${project.color}44;">${project.name}</span>`;
-        } else if (viewType === 'project' && category) {
-            metaHtml += `<span class="task-tag" style="background: ${category.color}22; color: ${category.color}; border: 1px solid ${category.color}44;">${category.name}</span>`;
-        }
-
-        if (task.recurring) {
-            metaHtml += `<span class="task-tag" style="background: rgba(108, 99, 255, 0.15); color: #6c63ff; border: 1px solid rgba(108, 99, 255, 0.3);">↻ Recurring</span>`;
-        }
-
-        // Add notes preview for project view
+        // Add notes preview for project and category views
         let notesPreview = '';
         if ((viewType === 'project' || viewType === 'category') && task.notes && task.notes.trim()) {
             notesPreview = `<div class="task-notes-preview">${this.escapeHtml(task.notes)}</div>`;
@@ -607,7 +636,10 @@ class FirstThingsFirst {
         return `
             <div class="task-item ${task.completed ? 'completed' : ''}"
                  data-task-id="${task.id}">
-                <div class="task-title">${this.escapeHtml(task.title)}</div>
+                <div class="task-item-header">
+                    <div class="task-title">${this.escapeHtml(task.title)}</div>
+                    ${tagsHtml ? `<div class="task-tags-inline">${tagsHtml}</div>` : ''}
+                </div>
                 ${metaHtml ? `<div class="task-meta">${metaHtml}</div>` : ''}
                 ${notesPreview}
             </div>
@@ -854,6 +886,18 @@ class FirstThingsFirst {
         const viewNames = { quadrant: 'Quadrant', category: 'Category', project: 'Project' };
         document.getElementById('viewLabel').textContent = `View: ${viewNames[view]}`;
 
+        // Show/hide header search bar (visible in all views)
+        const headerSearch = document.getElementById('headerSearch');
+        headerSearch.style.display = 'block';
+        
+        // Reset search input
+        const globalSearch = document.getElementById('globalSearchInput');
+        globalSearch.value = '';
+        document.getElementById('globalSearchClear').classList.remove('visible');
+        
+        // Setup global search for current view
+        this.setupGlobalSearch();
+
         // Show/hide views
         document.getElementById('matrixView').style.display = this.currentView === 'quadrant' ? 'flex' : 'none';
         document.getElementById('categoryView').classList.toggle('active', this.currentView === 'category');
@@ -868,6 +912,38 @@ class FirstThingsFirst {
         }
 
         this.renderCurrentView();
+    }
+
+    setupGlobalSearch() {
+        const searchInput = document.getElementById('globalSearchInput');
+        const clearBtn = document.getElementById('globalSearchClear');
+        
+        // Remove old listeners by cloning
+        const newSearchInput = searchInput.cloneNode(true);
+        const newClearBtn = clearBtn.cloneNode(true);
+        searchInput.parentNode.replaceChild(newSearchInput, searchInput);
+        clearBtn.parentNode.replaceChild(newClearBtn, clearBtn);
+        
+        // Add new listeners
+        newSearchInput.addEventListener('input', (e) => {
+            const query = e.target.value;
+            newClearBtn.classList.toggle('visible', !!query);
+            
+            if (this.currentView === 'quadrant') {
+                this.renderQuadrants(query);
+            } else if (this.currentView === 'category') {
+                this.renderCategoryView(query);
+            } else if (this.currentView === 'project') {
+                this.renderProjectView(query);
+            }
+        });
+        
+        newClearBtn.addEventListener('click', () => {
+            newSearchInput.value = '';
+            newSearchInput.focus();
+            newClearBtn.classList.remove('visible');
+            this.renderCurrentView();
+        });
     }
 
     // Dropdown Management
@@ -1323,7 +1399,7 @@ class FirstThingsFirst {
                     q2: { color: '#ABBEE1', label: 'Schedule This' },
                     q3: { color: '#BCB5F0', label: 'Delegate This' },
                     q4: { color: '#F5D26C', label: 'Consider This' },
-                    theme: 'dark'
+                    theme: 'ocean'
                 };
 
                 // Update UI
@@ -1338,40 +1414,22 @@ class FirstThingsFirst {
         }
     }
 
-    toggleTheme() {
-        this.settings.theme = this.settings.theme === 'dark' ? 'light' : 'dark';
-        this.applyTheme();
-        this.updateThemeDropdownButton();
-        this.saveData();
-    }
-
     applyTheme() {
-        if (this.settings.theme === 'light') {
-            document.body.classList.add('light-theme');
-        } else {
-            document.body.classList.remove('light-theme');
+        // Remove all theme classes
+        document.body.classList.remove('theme-forest', 'theme-sunset', 'theme-dawn', 'theme-breeze');
+        
+        // Add the current theme class (ocean is default, no class needed)
+        if (this.settings.theme === 'forest') {
+            document.body.classList.add('theme-forest');
+        } else if (this.settings.theme === 'sunset') {
+            document.body.classList.add('theme-sunset');
+        } else if (this.settings.theme === 'dawn') {
+            document.body.classList.add('theme-dawn');
+        } else if (this.settings.theme === 'breeze') {
+            document.body.classList.add('theme-breeze');
         }
     }
 
-    updateThemeDropdownButton() {
-        const themeText = document.getElementById('themeTextDropdown');
-        const themeIcon = document.getElementById('themeIconDropdown');
-
-        if (this.settings.theme === 'dark') {
-            themeText.textContent = 'Light Mode';
-            // Sun icon
-            themeIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>';
-        } else {
-            themeText.textContent = 'Dark Mode';
-            // Moon icon
-            themeIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>';
-        }
-    }
-
-    updateThemeButton() {
-        // Legacy method - kept for compatibility but unused
-        this.updateThemeDropdownButton();
-    }
 
     applySettings() {
         const root = document.documentElement;
