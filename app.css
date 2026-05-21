@@ -377,6 +377,14 @@
             color: #1a1a2e;
         }
 
+        /* Light theme dates group styling */
+        body.theme-dawn #taskDatesGroup,
+        body.theme-breeze #taskDatesGroup,
+        body.theme-spectrum #taskDatesGroup {
+            background: rgba(0, 0, 0, 0.04) !important;
+            border-color: rgba(0, 0, 0, 0.1) !important;
+        }
+
         .dropdown-item:hover {
             background: rgba(255, 255, 255, 0.08);
         }
@@ -691,14 +699,14 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 1.5rem 2rem;
+            padding: 1rem 1.5rem;
             border-bottom: 2px solid var(--border-color);
             flex-shrink: 0;
             background: var(--bg-darker);
         }
 
         .modal-header h2 {
-            font-size: 1.75rem;
+            font-size: 1.3rem;
             font-weight: 700;
         }
 

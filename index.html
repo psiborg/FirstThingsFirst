@@ -16,18 +16,18 @@
             <img src="./icon-192.png" alt="FirstThingsFirst" class="logo">
             <h1>FirstThingsFirst</h1>
         </div>
-
+        
         <!-- Global Search Bar in Header -->
         <div class="header-search" id="headerSearch" style="display: none;">
             <div class="search-input-wrapper">
                 <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                 </svg>
-                <input
-                    type="text"
-                    class="search-input"
+                <input 
+                    type="text" 
+                    class="search-input" 
                     id="globalSearchInput"
-                    placeholder="Search tasks..."
+                    placeholder="Search tasks..." 
                 >
                 <button class="search-clear" id="globalSearchClear">
                     <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -36,7 +36,7 @@
                 </button>
             </div>
         </div>
-
+        
         <div class="toolbar">
             <button class="btn btn-primary" id="addBtn">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -201,7 +201,7 @@
 
     <!-- Add/Edit Task Modal -->
     <div class="modal" id="taskModal">
-        <div class="modal-content">
+        <div class="modal-content" style="max-width: 520px;">
             <div class="modal-header">
                 <h2 id="modalTitle">Add Task</h2>
                 <button class="close-btn" id="closeTaskModal">&times;</button>
@@ -210,84 +210,84 @@
                 <form id="taskForm">
                     <input type="hidden" id="taskId">
 
-                    <div class="form-group">
-                        <label for="taskTitle">Title</label>
-                        <input type="text" id="taskTitle" maxlength="256" required autofocus>
+                    <div class="form-group" style="margin-bottom: 0.85rem;">
+                        <label for="taskTitle" style="font-size: 0.85rem; margin-bottom: 0.35rem;">Title</label>
+                        <input type="text" id="taskTitle" maxlength="256" required autofocus style="padding: 0.5rem 0.65rem; font-size: 0.9rem;">
                     </div>
 
-                    <div class="form-group">
-                        <label for="taskNotes">Notes (Markdown)</label>
-                        <textarea id="taskNotes"></textarea>
+                    <div class="form-group" style="margin-bottom: 0.85rem;">
+                        <label for="taskNotes" style="font-size: 0.85rem; margin-bottom: 0.35rem;">Notes (Markdown)</label>
+                        <textarea id="taskNotes" style="min-height: 7rem; padding: 0.5rem 0.65rem; font-size: 0.85rem;"></textarea>
                     </div>
 
-                    <div class="form-group">
-                        <label>Priority</label>
+                    <div class="form-group" style="margin-bottom: 0.85rem;">
+                        <label style="font-size: 0.85rem; margin-bottom: 0.35rem;">Priority</label>
                         <div class="checkbox-group">
                             <div class="checkbox-item">
                                 <input type="checkbox" id="taskUrgent">
-                                <label for="taskUrgent">Urgent</label>
+                                <label for="taskUrgent" style="font-size: 0.85rem;">Urgent</label>
                             </div>
                             <div class="checkbox-item">
                                 <input type="checkbox" id="taskImportant">
-                                <label for="taskImportant">Important</label>
+                                <label for="taskImportant" style="font-size: 0.85rem;">Important</label>
                             </div>
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="taskCategory">Category</label>
-                        <select id="taskCategory">
+                    <div class="form-group" style="margin-bottom: 0.85rem;">
+                        <label for="taskCategory" style="font-size: 0.85rem; margin-bottom: 0.35rem;">Category</label>
+                        <select id="taskCategory" style="padding: 0.5rem 0.65rem; font-size: 0.9rem;">
                             <option value="">None</option>
                         </select>
                     </div>
 
-                    <div class="form-group">
-                        <label for="taskProject">Project</label>
-                        <select id="taskProject">
+                    <div class="form-group" style="margin-bottom: 0.85rem;">
+                        <label for="taskProject" style="font-size: 0.85rem; margin-bottom: 0.35rem;">Project</label>
+                        <select id="taskProject" style="padding: 0.5rem 0.65rem; font-size: 0.9rem;">
                             <option value="">None</option>
                         </select>
                     </div>
 
-                    <div class="form-group">
-                        <label for="taskDueDate">Due Date</label>
-                        <input type="date" id="taskDueDate">
+                    <div class="form-group" style="margin-bottom: 0.85rem;">
+                        <label for="taskDueDate" style="font-size: 0.85rem; margin-bottom: 0.35rem;">Due Date</label>
+                        <input type="date" id="taskDueDate" style="padding: 0.5rem 0.65rem; font-size: 0.9rem;">
                     </div>
 
-                    <div class="form-group">
-                        <label>Status</label>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label style="font-size: 0.85rem; margin-bottom: 0.35rem;">Status</label>
                         <div class="checkbox-group">
                             <div class="checkbox-item">
                                 <input type="checkbox" id="taskRecurring">
-                                <label for="taskRecurring">Recurring</label>
+                                <label for="taskRecurring" style="font-size: 0.85rem;">Recurring</label>
                             </div>
                             <div class="checkbox-item">
                                 <input type="checkbox" id="taskCompleted">
-                                <label for="taskCompleted">Completed</label>
+                                <label for="taskCompleted" style="font-size: 0.85rem;">Completed</label>
                             </div>
                         </div>
                     </div>
 
-                    <div class="hidden" id="taskDatesGroup">
-                        <div class="form-group">
-                            <label>Created</label>
-                            <div id="taskCreatedDate" class="readonly-value"></div>
+                    <div class="hidden" id="taskDatesGroup" style="margin-top: 1rem; padding: 0.6rem 0.75rem; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); border-radius: 6px;">
+                        <div style="margin-bottom: 0.3rem; display: flex; justify-content: space-between; align-items: center;">
+                            <label style="font-size: 0.75rem; margin-bottom: 0; font-weight: 500; color: var(--text-secondary);">Created:</label>
+                            <div id="taskCreatedDate" class="readonly-value" style="font-size: 0.75rem; font-family: 'JetBrains Mono', monospace; color: var(--text-secondary);"></div>
                         </div>
-                        <div class="form-group">
-                            <label>Modified</label>
-                            <div id="taskModifiedDate" class="readonly-value"></div>
+                        <div style="margin-bottom: 0.3rem; display: flex; justify-content: space-between; align-items: center;">
+                            <label style="font-size: 0.75rem; margin-bottom: 0; font-weight: 500; color: var(--text-secondary);">Modified:</label>
+                            <div id="taskModifiedDate" class="readonly-value" style="font-size: 0.75rem; font-family: 'JetBrains Mono', monospace; color: var(--text-secondary);"></div>
                         </div>
-                        <div class="form-group hidden" id="taskCompletedDateContainer">
-                            <label>Completed</label>
-                            <div id="taskCompletedDate" class="readonly-value"></div>
+                        <div class="hidden" id="taskCompletedDateContainer" style="margin-bottom: 0; display: flex; justify-content: space-between; align-items: center;">
+                            <label style="font-size: 0.75rem; margin-bottom: 0; font-weight: 500; color: var(--text-secondary);">Completed:</label>
+                            <div id="taskCompletedDate" class="readonly-value" style="font-size: 0.75rem; font-family: 'JetBrains Mono', monospace; color: var(--text-secondary);"></div>
                         </div>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
                 <div class="modal-actions">
-                    <button type="button" class="btn" id="cancelTaskBtn">Cancel</button>
-                    <button type="button" class="btn delete-btn hidden" id="deleteTaskBtn">Delete</button>
-                    <button type="submit" class="btn btn-primary" id="saveTaskBtn">Save</button>
+                    <button type="button" class="btn" id="cancelTaskBtn" style="padding: 0.5rem 0.85rem; font-size: 0.85rem;">Cancel</button>
+                    <button type="button" class="btn delete-btn hidden" id="deleteTaskBtn" style="padding: 0.5rem 0.85rem; font-size: 0.85rem;">Delete</button>
+                    <button type="submit" class="btn btn-primary" id="saveTaskBtn" style="padding: 0.5rem 0.85rem; font-size: 0.85rem;">Save</button>
                 </div>
             </div>
         </div>
@@ -301,14 +301,14 @@
                 <h2>Manage</h2>
                 <button class="close-btn" id="closeManageModal">&times;</button>
             </div>
-
+            
             <!-- Tab Navigation -->
             <div class="modal-tabs">
                 <button class="modal-tab active" data-tab="quadrants">Quadrants</button>
                 <button class="modal-tab" data-tab="categories">Categories</button>
                 <button class="modal-tab" data-tab="projects">Projects</button>
             </div>
-
+            
             <div class="modal-body">
                 <!-- Quadrants Tab -->
                 <div class="tab-content active" id="quadrantsTab">
@@ -348,7 +348,7 @@
                         </div>
                     </div>
                 </div>
-
+                
                 <!-- Categories Tab -->
                 <div class="tab-content" id="categoriesTab">
                     <div id="categoriesList" class="list-items"></div>
@@ -359,7 +359,7 @@
                         Add Category
                     </button>
                 </div>
-
+                
                 <!-- Projects Tab -->
                 <div class="tab-content" id="projectsTab">
                     <div id="projectsList" class="list-items"></div>
@@ -371,7 +371,7 @@
                     </button>
                 </div>
             </div>
-
+            
             <div class="modal-footer">
                 <div class="modal-actions" id="quadrantsActions">
                     <button class="btn" id="resetSettingsBtn" style="padding: 0.5rem 0.85rem; font-size: 0.85rem;">Reset to Defaults</button>
@@ -445,16 +445,16 @@
                         <p style="color: var(--text-secondary); margin: 0; font-size: 0.85rem;">Priority Matrix Task Manager</p>
                     </div>
                 </div>
-
+                
                 <!-- Compact info grid -->
                 <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.75rem; margin-bottom: 1rem;">
                     <div style="display: grid; grid-template-columns: auto 1fr; gap: 0.5rem 0.75rem; font-size: 0.85rem;">
                         <strong>Version:</strong>
-                        <span id="appVersion">1.2.1</span>
-
+                        <span id="appVersion">1.1.0</span>
+                        
                         <strong>Cache:</strong>
                         <span id="cacheName" style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;">Loading...</span>
-
+                        
                         <strong>GitHub:</strong>
                         <a href="https://github.com/psiborg/FirstThingsFirst" target="_blank" rel="noopener noreferrer" style="color: var(--accent); text-decoration: none; font-size: 0.85rem;">
                             psiborg/FirstThingsFirst
@@ -464,7 +464,7 @@
                         </a>
                     </div>
                 </div>
-
+                
                 <!-- Compact features list -->
                 <div>
                     <h4 style="margin: 0 0 0.5rem 0; font-size: 0.95rem; color: var(--text-primary);">Features</h4>
