@@ -24,6 +24,7 @@ class FirstThingsFirst {
         this.applyTheme();
         this.applySettings();
         this.updateCategoryProjectSelects();
+        this.autoExportIfNeeded();
 
         // Read initial view from URL hash, falling back to quadrant
         const validViews = ['quadrant', 'category', 'project'];
@@ -261,6 +262,9 @@ class FirstThingsFirst {
         const deleteBtn = document.getElementById('deleteTaskBtn');
         const datesGroup = document.getElementById('taskDatesGroup');
         const completedDateContainer = document.getElementById('taskCompletedDateContainer');
+        const pendingDateContainer = document.getElementById('taskPendingDateContainer');
+        const onHoldDateContainer = document.getElementById('taskOnHoldDateContainer');
+        const cancelledDateContainer = document.getElementById('taskCancelledDateContainer');
 
         // Scroll modal body to top
         if (modalBody) {
@@ -283,6 +287,9 @@ class FirstThingsFirst {
                 document.getElementById('taskDueDate').value = task.dueDate || '';
                 document.getElementById('taskRecurring').checked = task.recurring || false;
                 document.getElementById('taskCompleted').checked = task.completed || false;
+                document.getElementById('taskPending').checked = task.pending || false;
+                document.getElementById('taskOnHold').checked = task.onHold || false;
+                document.getElementById('taskCancelled').checked = task.cancelled || false;
                 deleteBtn.style.display = 'block';
 
                 // Show and populate date fields
@@ -290,12 +297,33 @@ class FirstThingsFirst {
                 document.getElementById('taskCreatedDate').textContent = this.formatDateTime(task.createdAt);
                 document.getElementById('taskModifiedDate').textContent = this.formatDateTime(task.modifiedAt || task.createdAt);
 
-                // Show completed date if task is completed
+                // Show completed/on hold/cancelled dates if set
                 if (task.completed && task.completedAt) {
                     completedDateContainer.classList.remove('hidden');
                     document.getElementById('taskCompletedDate').textContent = this.formatDateTime(task.completedAt);
                 } else {
                     completedDateContainer.classList.add('hidden');
+                }
+
+                if (task.pending && task.pendingAt) {
+                    pendingDateContainer.classList.remove('hidden');
+                    document.getElementById('taskPendingDate').textContent = this.formatDateTime(task.pendingAt);
+                } else {
+                    pendingDateContainer.classList.add('hidden');
+                }
+
+                if (task.onHold && task.onHoldAt) {
+                    onHoldDateContainer.classList.remove('hidden');
+                    document.getElementById('taskOnHoldDate').textContent = this.formatDateTime(task.onHoldAt);
+                } else {
+                    onHoldDateContainer.classList.add('hidden');
+                }
+
+                if (task.cancelled && task.cancelledAt) {
+                    cancelledDateContainer.classList.remove('hidden');
+                    document.getElementById('taskCancelledDate').textContent = this.formatDateTime(task.cancelledAt);
+                } else {
+                    cancelledDateContainer.classList.add('hidden');
                 }
             }
         } else {
@@ -303,6 +331,9 @@ class FirstThingsFirst {
             deleteBtn.style.display = 'none';
             datesGroup.classList.add('hidden');
             completedDateContainer.classList.add('hidden');
+            pendingDateContainer.classList.add('hidden');
+            onHoldDateContainer.classList.add('hidden');
+            cancelledDateContainer.classList.add('hidden');
         }
 
         modal.classList.add('active');
@@ -322,10 +353,17 @@ class FirstThingsFirst {
         e.preventDefault();
 
         const now = new Date().toISOString();
-        const wasCompleted = this.editingTaskId ?
-            this.tasks.find(t => t.id === this.editingTaskId)?.completed :
-            false;
+        const existingTask = this.editingTaskId ?
+            this.tasks.find(t => t.id === this.editingTaskId) :
+            null;
+        const wasCompleted = existingTask?.completed;
+        const wasPending = existingTask?.pending;
+        const wasOnHold = existingTask?.onHold;
+        const wasCancelled = existingTask?.cancelled;
         const isNowCompleted = document.getElementById('taskCompleted').checked;
+        const isNowPending = document.getElementById('taskPending').checked;
+        const isNowOnHold = document.getElementById('taskOnHold').checked;
+        const isNowCancelled = document.getElementById('taskCancelled').checked;
 
         const task = {
             id: this.editingTaskId || Date.now().toString(),
@@ -338,9 +376,10 @@ class FirstThingsFirst {
             dueDate: document.getElementById('taskDueDate').value,
             recurring: document.getElementById('taskRecurring').checked,
             completed: isNowCompleted,
-            createdAt: this.editingTaskId ?
-                this.tasks.find(t => t.id === this.editingTaskId)?.createdAt :
-                now,
+            pending: isNowPending,
+            onHold: isNowOnHold,
+            cancelled: isNowCancelled,
+            createdAt: existingTask?.createdAt || now,
             modifiedAt: now
         };
 
@@ -350,10 +389,37 @@ class FirstThingsFirst {
             task.completedAt = now;
         } else if (isNowCompleted && wasCompleted) {
             // Task was already completed, keep original completed date
-            task.completedAt = this.tasks.find(t => t.id === this.editingTaskId)?.completedAt || now;
+            task.completedAt = existingTask?.completedAt || now;
         } else if (!isNowCompleted && wasCompleted) {
             // Task was uncompleted, remove completed date
             task.completedAt = null;
+        }
+
+        // Track pending date
+        if (isNowPending && !wasPending) {
+            task.pendingAt = now;
+        } else if (isNowPending && wasPending) {
+            task.pendingAt = existingTask?.pendingAt || now;
+        } else if (!isNowPending && wasPending) {
+            task.pendingAt = null;
+        }
+
+        // Track on hold date
+        if (isNowOnHold && !wasOnHold) {
+            task.onHoldAt = now;
+        } else if (isNowOnHold && wasOnHold) {
+            task.onHoldAt = existingTask?.onHoldAt || now;
+        } else if (!isNowOnHold && wasOnHold) {
+            task.onHoldAt = null;
+        }
+
+        // Track cancelled date
+        if (isNowCancelled && !wasCancelled) {
+            task.cancelledAt = now;
+        } else if (isNowCancelled && wasCancelled) {
+            task.cancelledAt = existingTask?.cancelledAt || now;
+        } else if (!isNowCancelled && wasCancelled) {
+            task.cancelledAt = null;
         }
 
         if (this.editingTaskId) {
@@ -403,6 +469,44 @@ class FirstThingsFirst {
 
         this.saveData();
         this.renderQuadrants();
+    }
+
+    // Completed, on-hold, and cancelled tasks are treated as inactive: they
+    // get struck through and pushed to the bottom of their group.
+    isInactiveTask(task) {
+        return !!(task.completed || task.onHold || task.cancelled);
+    }
+
+    taskStatusClass(task) {
+        if (task.completed) return 'completed';
+        if (task.onHold) return 'on-hold';
+        if (task.cancelled) return 'cancelled';
+        return '';
+    }
+
+    sortTasks(tasks) {
+        tasks.sort((a, b) => {
+            const aInactive = this.isInactiveTask(a);
+            const bInactive = this.isInactiveTask(b);
+
+            // Inactive tasks go to the bottom
+            if (aInactive && !bInactive) return 1;
+            if (!aInactive && bInactive) return -1;
+
+            // Among active tasks
+            if (!aInactive && !bInactive) {
+                // Tasks with due dates come first
+                if (a.dueDate && !b.dueDate) return -1;
+                if (!a.dueDate && b.dueDate) return 1;
+                // Both have due dates - sort chronologically
+                if (a.dueDate && b.dueDate) {
+                    return new Date(a.dueDate) - new Date(b.dueDate);
+                }
+            }
+
+            return 0;
+        });
+        return tasks;
     }
 
     getQuadrant(task) {
@@ -490,27 +594,7 @@ class FirstThingsFirst {
         // Render quadrants with filtered tasks
         for (let i = 1; i <= 4; i++) {
             const container = document.getElementById(`q${i}Items`);
-            const tasks = filteredTasks.filter(t => this.getQuadrant(t) === i);
-
-            // Sort tasks: due date tasks first (chronologically), then others, completed last
-            tasks.sort((a, b) => {
-                // Completed tasks go to bottom
-                if (a.completed && !b.completed) return 1;
-                if (!a.completed && b.completed) return -1;
-
-                // Among non-completed tasks
-                if (!a.completed && !b.completed) {
-                    // Tasks with due dates come first
-                    if (a.dueDate && !b.dueDate) return -1;
-                    if (!a.dueDate && b.dueDate) return 1;
-                    // Both have due dates - sort chronologically
-                    if (a.dueDate && b.dueDate) {
-                        return new Date(a.dueDate) - new Date(b.dueDate);
-                    }
-                }
-
-                return 0;
-            });
+            const tasks = this.sortTasks(filteredTasks.filter(t => this.getQuadrant(t) === i));
 
             container.innerHTML = tasks.map(task => this.renderTaskItem(task)).join('');
         }
@@ -561,7 +645,7 @@ class FirstThingsFirst {
             today.setHours(0, 0, 0, 0);
             const due = new Date(dueDate);
             due.setHours(0, 0, 0, 0);
-            const isOverdue = due < today && !task.completed;
+            const isOverdue = due < today && !this.isInactiveTask(task);
 
             metaHtml += `<span class="task-due" style="color: ${isOverdue ? '#ff3b30' : 'inherit'}">
                 <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -572,7 +656,7 @@ class FirstThingsFirst {
         }
 
         return `
-            <div class="task-item ${task.completed ? 'completed' : ''}"
+            <div class="task-item ${this.taskStatusClass(task)}"
                  data-task-id="${task.id}"
                  draggable="true">
                 <div class="task-item-header">
@@ -621,7 +705,7 @@ class FirstThingsFirst {
             today.setHours(0, 0, 0, 0);
             const due = new Date(dueDate);
             due.setHours(0, 0, 0, 0);
-            const isOverdue = due < today && !task.completed;
+            const isOverdue = due < today && !this.isInactiveTask(task);
 
             metaHtml += `<span class="task-due" style="color: ${isOverdue ? '#ff3b30' : 'inherit'}">
                 <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -638,7 +722,7 @@ class FirstThingsFirst {
         }
 
         return `
-            <div class="task-item ${task.completed ? 'completed' : ''}"
+            <div class="task-item ${this.taskStatusClass(task)}"
                  data-task-id="${task.id}">
                 <div class="task-item-header">
                     <div class="task-title">${this.escapeHtml(task.title)}</div>
@@ -670,7 +754,7 @@ class FirstThingsFirst {
 
         // Build category sections HTML
         const sectionsHtml = categoriesWithNone.map(category => {
-            const tasks = filteredTasks.filter(t => (t.category || '') === category.id);
+            const tasks = this.sortTasks(filteredTasks.filter(t => (t.category || '') === category.id));
             if (tasks.length === 0) return '';
 
             return `
@@ -778,7 +862,7 @@ class FirstThingsFirst {
 
         // Build project sections HTML
         const sectionsHtml = projectsWithNone.map(project => {
-            const tasks = filteredTasks.filter(t => (t.project || '') === project.id);
+            const tasks = this.sortTasks(filteredTasks.filter(t => (t.project || '') === project.id));
             if (tasks.length === 0) return '';
 
             return `
@@ -988,6 +1072,22 @@ class FirstThingsFirst {
         a.download = `firstthingsfirst-export-${new Date().toISOString().split('T')[0]}.json`;
         a.click();
         URL.revokeObjectURL(url);
+
+        this.settings.lastExportDate = Date.now();
+        this.saveData();
+    }
+
+    // Auto-export a backup on startup, throttled to once per day, so data
+    // survives a browser/site-data clear even if the user never exports manually.
+    autoExportIfNeeded() {
+        const hasData = this.tasks.length > 0 || this.categories.length > 0 || this.projects.length > 0;
+        if (!hasData) return;
+
+        const oneDayMs = 24 * 60 * 60 * 1000;
+        const lastExport = this.settings.lastExportDate || 0;
+        if (Date.now() - lastExport < oneDayMs) return;
+
+        this.exportData();
     }
 
     importData(e) {

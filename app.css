@@ -577,7 +577,9 @@
             flex: 1;
         }
 
-        .task-item.completed .task-title {
+        .task-item.completed .task-title,
+        .task-item.on-hold .task-title,
+        .task-item.cancelled .task-title {
             text-decoration: line-through;
             opacity: 0.5;
         }
